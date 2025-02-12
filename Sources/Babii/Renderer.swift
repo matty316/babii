@@ -14,10 +14,11 @@ class Renderer: NSObject, MTKViewDelegate {
     let depthState: MTLDepthStencilState
     let pipelineState: MTLRenderPipelineState
     let commandQueue: MTLCommandQueue
-    var viewportSize = CGSize()
+    var viewportSize: SIMD2<UInt32>
     var lastTime: TimeInterval = Date().timeIntervalSinceReferenceDate
     
     override init() {
+        self.viewportSize = [0, 0]
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("Unable to get GPU")
         }
@@ -64,8 +65,8 @@ class Renderer: NSObject, MTKViewDelegate {
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        viewportSize.width = size.width
-        viewportSize.height = size.height
+        viewportSize.x = UInt32(size.width)
+        viewportSize.y = UInt32(size.height)
     }
     
     func processInput() {
@@ -76,11 +77,6 @@ class Renderer: NSObject, MTKViewDelegate {
     
     func draw(in view: MTKView) {
         processInput()
-        
-//        let loader = MTKTextureLoader(device: device)
-//        let sideTexture = try! loader.newTexture(name: "mc_grass", scaleFactor: 1.0, bundle: .main, options: [.origin: MTKTextureLoader.Origin.flippedVertically])
-//        let topTexture = try! loader.newTexture(name: "mc_grass_top", scaleFactor: 1.0, bundle: .main)
-        
         guard let renderPassDescriptor = view.currentRenderPassDescriptor, let commandBuffer = commandQueue.makeCommandBuffer() else {
             return
         }
@@ -94,21 +90,27 @@ class Renderer: NSObject, MTKViewDelegate {
         
         renderEncoder.setViewport(MTLViewport(originX: 0.0,
                                               originY: 0.0,
-                                              width: viewportSize.width,
-                                              height: viewportSize.height,
+                                              width: Double(viewportSize.x),
+                                              height: Double(viewportSize.y),
                                               znear: 0.0,
                                               zfar: 1.0))
         
         renderEncoder.setRenderPipelineState(pipelineState)
         
+        let vertices = [
+            Vertex(pos: [ 250, -250, 0], color: [1, 0, 0, 1]),
+            Vertex(pos: [-250, -250, 0], color: [0, 1, 0, 1]),
+            Vertex(pos: [   0,  250, 0], color: [0, 0, 1, 1]),
+        ]
         
+        renderEncoder.setVertexBytes(vertices, length: MemoryLayout<Vertex>.stride * vertices.count, index: 0)
+        renderEncoder.setVertexBytes(&viewportSize, length: MemoryLayout<UInt32>.stride * 2, index: 1)
         
-//        renderEncoder.setFragmentTexture(sideTexture, index: 0)
-//        renderEncoder.setFragmentTexture(topTexture, index: 1)
-        
-        renderEncoder.setFrontFacing(.counterClockwise)
-        renderEncoder.setCullMode(.back)
+//        renderEncoder.setFrontFacing(.counterClockwise)
+//        renderEncoder.setCullMode(.back)
 //        renderEncoder.setTriangleFillMode(.lines)
+        
+        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
         
         renderEncoder.endEncoding()
         if let currentDrawable = view.currentDrawable {

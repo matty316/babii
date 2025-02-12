@@ -10,42 +10,31 @@
 using namespace metal;
 
 struct Vertex {
-    float4 position;
-    float2 texCoords;
-    float3 normal;
-    bool top;
+    float3 position;
+    float4 color;
 };
 
-struct TransformationData {
-    matrix_float4x4 modelMatrix;
-    matrix_float4x4 viewMatrix;
-    matrix_float4x4 perspectiveMatrix;
-};
-
-struct RasterizerData {
+struct Fragment {
     float4 position [[position]];
-    float2 texCoords;
-    bool top;
+    float4 color;
 };
 
-vertex RasterizerData
+vertex Fragment
 vertexShader(uint vertexID [[vertex_id]],
              constant Vertex *vertices [[buffer(0)]],
-             constant TransformationData* transformationData[[buffer((1))]]) {
-    RasterizerData out;
+             constant vector_uint2* viewportSizePointer [[buffer((1))]]) {
+    Fragment out;
+    vector_float2 viewport_size = vector_float2(*viewportSizePointer);
         
-    out.position = transformationData[vertexID].perspectiveMatrix * transformationData[vertexID].viewMatrix * transformationData[vertexID].modelMatrix * vertices[vertexID].position;
-    out.texCoords = vertices[vertexID].texCoords;
-    out.top = vertices[vertexID].top;
+    out.position = float4(0.0, 0.0, 0.0, 1.0);
+    out.position.xy = vertices[vertexID].position.xy / (viewport_size / 2.0);
+    out.color = vertices[vertexID].color;
     
     return out;
 }
 
-fragment float4 fragmentShader(RasterizerData in [[stage_in]],
-                               texture2d<float> sideTexture [[texture(0)]],
-                               texture2d<float> topTexture [[texture(1)]]) {
-    constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);
-    const float4 colorSample = in.top ? topTexture.sample(textureSampler, in.texCoords) : sideTexture.sample(textureSampler, in.texCoords);
+fragment float4 fragmentShader(Fragment in [[stage_in]]) {
     
-    return colorSample;
+    
+    return in.color;
 }
