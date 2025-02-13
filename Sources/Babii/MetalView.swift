@@ -9,10 +9,17 @@ import SwiftUI
 import MetalKit
 import GameController
 
-public struct MetalView {
-    @State var renderer = Renderer()
+public struct MetalView: @unchecked Sendable {
+    @State var renderer: RendererProtocol
+    var processInput: ProcessInputClosure?
     
-    public init() {}
+    public init(renderer: RendererProtocol = Renderer(), processInput: ProcessInputClosure? = nil) {
+        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { _ in
+            nil
+        }
+        self.renderer = renderer
+        self.renderer.processInputClosure = processInput
+    }
     
     @MainActor func setupView() -> MTKView {
         let view = MTKView()
@@ -33,7 +40,7 @@ public struct MetalView {
         NotificationCenter.default.addObserver(forName: Notification.Name.GCKeyboardDidConnect, object: nil, queue: nil) { notification in
             let keyboard = notification.object as? GCKeyboard
             keyboard?.keyboardInput?.keyChangedHandler = { _, _, code, pressed in
-//                renderer.keysPressed[code] = pressed
+                 renderer.keysPressed[code] = pressed
             }
         }
         
@@ -41,24 +48,23 @@ public struct MetalView {
             let mouse = notification.object as? GCMouse
             
             mouse?.mouseInput?.mouseMovedHandler = { _, deltaX, deltaY in
-//                renderer.mouseDelta = (deltaX, deltaY)
+                renderer.mouseDelta = [deltaX, deltaY]
             }
         }
         
         return view
     }
     
-    func update() {
-    }
+    func update() {}
 }
 
 #if os(iOS)
 extension MetalView: UIViewRepresentable {
-    func makeUIView(context: Context) -> some UIView {
+    public func makeUIView(context: Context) -> some UIView {
         setupView()
     }
     
-    func updateUIView(_ uiView: UIViewType, context: Context) {
+    public func updateUIView(_ uiView: UIViewType, context: Context) {
         update()
     }
 }

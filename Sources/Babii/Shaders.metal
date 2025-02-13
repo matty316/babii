@@ -10,8 +10,14 @@
 using namespace metal;
 
 struct Vertex {
-    float3 position;
+    float4 position;
     float4 color;
+};
+
+struct Transformation {
+    matrix_float4x4 model;
+    matrix_float4x4 view;
+    matrix_float4x4 projection;
 };
 
 struct Fragment {
@@ -22,19 +28,15 @@ struct Fragment {
 vertex Fragment
 vertexShader(uint vertexID [[vertex_id]],
              constant Vertex *vertices [[buffer(0)]],
-             constant vector_uint2* viewportSizePointer [[buffer((1))]]) {
+             constant Transformation *transformation [[buffer(1)]]) {
     Fragment out;
-    vector_float2 viewport_size = vector_float2(*viewportSizePointer);
         
-    out.position = float4(0.0, 0.0, 0.0, 1.0);
-    out.position.xy = vertices[vertexID].position.xy / (viewport_size / 2.0);
+    out.position = transformation->projection * transformation->view * transformation->model * vertices[vertexID].position;
     out.color = vertices[vertexID].color;
     
     return out;
 }
 
 fragment float4 fragmentShader(Fragment in [[stage_in]]) {
-    
-    
     return in.color;
 }
