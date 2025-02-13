@@ -27,13 +27,14 @@ public class Renderer: NSObject, RendererProtocol {
     let vertices: [Vertex]
     public var keysPressed = [GCKeyCode: Bool]()
     public var mouseDelta: SIMD2<Float> = [0, 0]
-    var camera = Camera(cameraType: .fps)
+    var camera: Camera
     var lastDelta: SIMD2<Float> = [0, 0]
     let cullBackFaces: Bool
+    let wireframe = false
     
     public var processInputClosure: ProcessInputClosure?
     
-    public init(vertices: [Vertex] = Vertices.triangle, cullBackFaces: Bool = false) {
+    public init(vertices: [Vertex] = Vertices.triangle, cullBackFaces: Bool = false, cameraType: CameraType = .fps) {
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("Unable to get GPU")
         }
@@ -78,6 +79,7 @@ public class Renderer: NSObject, RendererProtocol {
          
         self.vertices = vertices
         self.cullBackFaces = cullBackFaces
+        self.camera = Camera(cameraType: cameraType)
         super.init()
     }
     
@@ -153,7 +155,10 @@ public class Renderer: NSObject, RendererProtocol {
             renderEncoder.setFrontFacing(.counterClockwise)
             renderEncoder.setCullMode(.back)
         }
-//        renderEncoder.setTriangleFillMode(.lines)
+        
+        if wireframe {
+            renderEncoder.setTriangleFillMode(.lines)
+        }
         
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertices.count)
         

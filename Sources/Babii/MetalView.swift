@@ -14,9 +14,11 @@ public struct MetalView: @unchecked Sendable {
     var processInput: ProcessInputClosure?
     
     public init(renderer: RendererProtocol = Renderer(), processInput: ProcessInputClosure? = nil) {
+#if os(macOS)
         NSEvent.addLocalMonitorForEvents(matching: .keyDown) { _ in
             nil
         }
+#endif
         self.renderer = renderer
         self.renderer.processInputClosure = processInput
     }
@@ -81,6 +83,6 @@ extension MetalView: NSViewRepresentable {
 #endif
 
 #Preview {
-    MetalView()
+    MetalView(renderer: Renderer(vertices: Vertices.cube, cullBackFaces: true, cameraType: .fps))
 }
 
