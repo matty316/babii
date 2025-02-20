@@ -11,13 +11,7 @@ import MetalKit
 
 public typealias ProcessInputClosure = ((TimeInterval, [GCKeyCode: Bool], SIMD2<Float>) -> ())
 
-public protocol RendererProtocol: MTKViewDelegate {
-    var processInputClosure: ProcessInputClosure? { get set }
-    var keysPressed: [GCKeyCode: Bool] { get set }
-    var mouseDelta: SIMD2<Float> { get set }
-}
-
-public class Renderer: NSObject, RendererProtocol {
+public class Renderer: NSObject, MTKViewDelegate {
     let device: MTLDevice
     let depthState: MTLDepthStencilState
     let pipelineState: MTLRenderPipelineState
@@ -91,7 +85,11 @@ public class Renderer: NSObject, RendererProtocol {
     func processInput() {
         let deltaTime = Date().timeIntervalSinceReferenceDate - lastTime
         lastTime = Date().timeIntervalSinceReferenceDate
-        processInputClosure?(deltaTime, keysPressed, mouseDelta)
+        if let processInputClosure = processInputClosure {
+            
+            processInputClosure(deltaTime, keysPressed, mouseDelta)
+            return
+        }
         
         if keysPressed[.keyW] == true {
             camera.processKeyboardMovement(direction: .forward, deltaTime: deltaTime)

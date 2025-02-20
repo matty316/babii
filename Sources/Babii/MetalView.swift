@@ -10,16 +10,20 @@ import MetalKit
 import GameController
 
 public struct MetalView: @unchecked Sendable {
-    @State var renderer: RendererProtocol
+    @State var renderer: Renderer
     var processInput: ProcessInputClosure?
     
-    public init(renderer: RendererProtocol = Renderer(), processInput: ProcessInputClosure? = nil) {
+    public init(processInput: ProcessInputClosure? = nil, vertices: [Vertex] = Vertices.triangle, cullBackFaces: Bool = false, cameraType: CameraType = .fps) {
 #if os(macOS)
         NSEvent.addLocalMonitorForEvents(matching: .keyDown) { _ in
             nil
         }
 #endif
-        self.renderer = renderer
+        self.renderer = Renderer(
+            vertices: vertices,
+            cullBackFaces: cullBackFaces  ,
+            cameraType: cameraType
+        )
         self.renderer.processInputClosure = processInput
     }
     
@@ -83,6 +87,6 @@ extension MetalView: NSViewRepresentable {
 #endif
 
 #Preview {
-    MetalView(renderer: Renderer(vertices: Vertices.cube, cullBackFaces: true, cameraType: .fps))
+    MetalView()
 }
 
