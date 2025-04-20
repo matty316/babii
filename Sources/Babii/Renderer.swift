@@ -18,12 +18,12 @@ public class Renderer: NSObject, MTKViewDelegate {
     let commandQueue: MTLCommandQueue
     var lastTime: Double = CFAbsoluteTimeGetCurrent()
     let wireframe = false
-    lazy var scene = GameScene(device: device)
+    var scene: GameScene
     
     public var processInputClosure: ProcessInputClosure?
     
     @MainActor
-    public init(view: MTKView) {
+    override public init() {
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("Unable to get GPU")
         }
@@ -45,13 +45,15 @@ public class Renderer: NSObject, MTKViewDelegate {
             }
             
             self.depthState = depthState
+            self.scene = GameScene(device: device)
             
             let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
             pipelineStateDescriptor.label = "Render Pipeline"
             pipelineStateDescriptor.vertexFunction = vertexFunc
             pipelineStateDescriptor.fragmentFunction = fragmentFunc
-            pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat
+            pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
             pipelineStateDescriptor.depthAttachmentPixelFormat = .depth32Float
+            pipelineStateDescriptor.vertexDescriptor = scene.vertexDescriptor
             
             let pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
             
@@ -83,7 +85,6 @@ public class Renderer: NSObject, MTKViewDelegate {
         renderEncoder.label = "MyRenderEndcoder"
         
         renderEncoder.setDepthStencilState(depthState)
-        
         renderEncoder.setRenderPipelineState(pipelineState)
        
         let currentTime = CFAbsoluteTimeGetCurrent()

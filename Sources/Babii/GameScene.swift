@@ -12,9 +12,12 @@ struct GameScene {
     var cam = Camera()
     var controls = Controls()
     var models = [Model]()
+    let vertexDescriptor: MTLVertexDescriptor?
     
     init(device: MTLDevice) {
-        models.append(Cube(device: device))
+        let cube = Cube(device: device)
+        models.append(cube)
+        self.vertexDescriptor = cube.vertexDescriptor
     }
     
     mutating func update(size: CGSize) {
@@ -39,6 +42,11 @@ struct GameScene {
     }
     
     func render(renderEncoder: MTLRenderCommandEncoder) {
+        var transformation = Transformation()
+        transformation.view = cam.view
+        transformation.projection = cam.projection
+        transformation.model = cam.model
+        renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 1)
         for model in models {
             model.render(renderEncoder: renderEncoder)
         }

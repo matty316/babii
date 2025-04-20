@@ -41,6 +41,12 @@ public struct Camera {
         perspective(fovyRadians: fov, aspect: aspect, nearZ: 0.1, farZ: 100)
     }
     
+    var model: matrix_float4x4 {
+        let translation = translation(vector: [0, 0, 0])
+        let rotation = rotation(angle: radians(from: 45), vector: [0, 1, 0])
+        return simd_mul(translation, rotation)
+    }
+    
     init(cameraType: CameraType = .fly) {
         self.cameraType = cameraType
         updateCameraVectors()

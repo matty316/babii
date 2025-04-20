@@ -10,28 +10,21 @@ import MetalKit
 import GameController
 
 public struct MetalView: View {
-    @State var view = MTKView()
-    @State var renderer: Renderer?
+    @State var renderer = Renderer()
     
-    public init() {
-        self.renderer = Renderer(view: view)
-    }
+    public init() {}
     
     @MainActor func setupView() -> MTKView {
+        var view = MTKView()
+
+        view.device = MTLCreateSystemDefaultDevice()
         view.preferredFramesPerSecond = 60
         view.enableSetNeedsDisplay = true
-        
-        guard let device = MTLCreateSystemDefaultDevice() else {
-            fatalError("Unable to get a GPU")
-        }
-        
-        view.device = device
         view.framebufferOnly = false
         view.drawableSize = view.frame.size
         view.depthStencilPixelFormat = .depth32Float
         view.isPaused = false
         view.delegate = renderer
-        
         return view
     }
     
