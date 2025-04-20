@@ -30,14 +30,24 @@ public struct Camera {
     let movementSpeed: Float = 2.5
     let mouseSensitivity: Float = 0.1
     let zoom: Float = 45
+    let fov = radians(from: 45)
+    var aspect: Float = 1.0
     
     var view: matrix_float4x4 {
         lookAt(position: position, target: position + front, up: up)
     }
     
+    var projection: matrix_float4x4 {
+        perspective(fovyRadians: fov, aspect: aspect, nearZ: 0.1, farZ: 100)
+    }
+    
     init(cameraType: CameraType = .fly) {
         self.cameraType = cameraType
         updateCameraVectors()
+    }
+    
+    mutating func update(size: CGSize) {
+        aspect = Float(size.width / size.height)
     }
     
     mutating func updateCameraVectors() {
@@ -50,8 +60,8 @@ public struct Camera {
         up = normalize(cross(right, front))
     }
     
-    public mutating func processKeyboardMovement(direction: CameraDirection, deltaTime: TimeInterval) {
-        let velocity = movementSpeed * Float(deltaTime)
+    public mutating func processKeyboardMovement(direction: CameraDirection, deltaTime: Float) {
+        let velocity = movementSpeed * deltaTime
         
         switch direction {
         case .forward: position += front * velocity
@@ -65,7 +75,7 @@ public struct Camera {
         }
     }
     
-    mutating func processMouseMovement(mouseDelta: SIMD2<Float>, constrainPitch: Bool = true) {
+    mutating func processMouseMovement(mouseDelta: Controls.Point, constrainPitch: Bool = true) {
         var xOffset = mouseDelta.x
         var yOffset = mouseDelta.y
         

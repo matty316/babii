@@ -9,26 +9,15 @@ import SwiftUI
 import MetalKit
 import GameController
 
-public struct MetalView: @unchecked Sendable {
-    @State var renderer: Renderer
-    var processInput: ProcessInputClosure?
+public struct MetalView: View {
+    @State var view = MTKView()
+    @State var renderer: Renderer?
     
-    public init(processInput: ProcessInputClosure? = nil, vertices: [Vertex] = Vertices.triangle, cullBackFaces: Bool = false, cameraType: CameraType = .fps) {
-#if os(macOS)
-        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { _ in
-            nil
-        }
-#endif
-        self.renderer = Renderer(
-            vertices: vertices,
-            cullBackFaces: cullBackFaces  ,
-            cameraType: cameraType
-        )
-        self.renderer.processInputClosure = processInput
+    public init() {
+        self.renderer = Renderer(view: view)
     }
     
     @MainActor func setupView() -> MTKView {
-        let view = MTKView()
         view.preferredFramesPerSecond = 60
         view.enableSetNeedsDisplay = true
         
@@ -42,21 +31,6 @@ public struct MetalView: @unchecked Sendable {
         view.depthStencilPixelFormat = .depth32Float
         view.isPaused = false
         view.delegate = renderer
-        
-        NotificationCenter.default.addObserver(forName: Notification.Name.GCKeyboardDidConnect, object: nil, queue: nil) { notification in
-            let keyboard = notification.object as? GCKeyboard
-            keyboard?.keyboardInput?.keyChangedHandler = { _, _, code, pressed in
-                 renderer.keysPressed[code] = pressed
-            }
-        }
-        
-        NotificationCenter.default.addObserver(forName: Notification.Name.GCMouseDidConnect, object: nil, queue: nil) { notification in
-            let mouse = notification.object as? GCMouse
-            
-            mouse?.mouseInput?.mouseMovedHandler = { _, deltaX, deltaY in
-                renderer.mouseDelta = [deltaX, deltaY]
-            }
-        }
         
         return view
     }

@@ -8,7 +8,7 @@
 import simd
 
 struct Transformation {
-    let model: matrix_float4x4
-    let view: matrix_float4x4
-    let projection: matrix_float4x4
+    var model: matrix_float4x4 = matrix_float4x4()
+    var view: matrix_float4x4 = matrix_float4x4()
+    var projection: matrix_float4x4 = matrix_float4x4()
 }
