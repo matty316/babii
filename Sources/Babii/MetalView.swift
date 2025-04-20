@@ -15,7 +15,7 @@ public struct MetalView: View {
     public init() {}
     
     @MainActor func setupView() -> MTKView {
-        var view = MTKView()
+        let view = MTKView()
 
         view.device = MTLCreateSystemDefaultDevice()
         view.preferredFramesPerSecond = 60

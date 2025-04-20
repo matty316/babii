@@ -12,12 +12,10 @@ struct GameScene {
     var cam = Camera()
     var controls = Controls()
     var models = [Model]()
-    let vertexDescriptor: MTLVertexDescriptor?
     
     init(device: MTLDevice) {
         let cube = Cube(device: device)
         models.append(cube)
-        self.vertexDescriptor = cube.vertexDescriptor
     }
     
     mutating func update(size: CGSize) {

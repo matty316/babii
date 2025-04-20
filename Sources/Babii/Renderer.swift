@@ -53,7 +53,7 @@ public class Renderer: NSObject, MTKViewDelegate {
             pipelineStateDescriptor.fragmentFunction = fragmentFunc
             pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
             pipelineStateDescriptor.depthAttachmentPixelFormat = .depth32Float
-            pipelineStateDescriptor.vertexDescriptor = scene.vertexDescriptor
+            pipelineStateDescriptor.vertexDescriptor = Self.vertexDescriptor()
             
             let pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
             
@@ -103,5 +103,35 @@ public class Renderer: NSObject, MTKViewDelegate {
             commandBuffer.present(currentDrawable)
         }
         commandBuffer.commit()
+    }
+    
+    static func vertexDescriptor() -> MTLVertexDescriptor {
+        let vertexDescriptor = MDLVertexDescriptor()
+        var offset = 0
+        vertexDescriptor.attributes[0] = MDLVertexAttribute(
+          name: MDLVertexAttributePosition,
+          format: .float3,
+          offset: 0,
+          bufferIndex: 0)
+        offset += MemoryLayout<SIMD3<Float>>.stride
+
+        vertexDescriptor.attributes[1] = MDLVertexAttribute(
+          name: MDLVertexAttributeNormal,
+          format: .float3,
+          offset: offset,
+          bufferIndex: 0)
+        offset += MemoryLayout<SIMD3<Float>>.stride
+        vertexDescriptor.layouts[0]
+          = MDLVertexBufferLayout(stride: offset)
+
+        vertexDescriptor.attributes[2] = MDLVertexAttribute(
+          name: MDLVertexAttributeTextureCoordinate,
+          format: .float2,
+          offset: 0,
+          bufferIndex: 1)
+        vertexDescriptor.layouts[1]
+          = MDLVertexBufferLayout(stride: MemoryLayout<SIMD2<Float>>.stride)
+
+        return MTKMetalVertexDescriptorFromModelIO(vertexDescriptor)!
     }
 }
