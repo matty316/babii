@@ -1,13 +1,12 @@
 //
-//  Shaders.metal
+//  ShaderDefs.h
 //  Babii
 //
-//  Created by matty on 2/12/25.
+//  Created by matty on 4/21/25.
 //
 
-#include <metal_stdlib>
-#include <simd/simd.h>
-using namespace metal;
+#ifndef ShaderDefs_h
+#define ShaderDefs_h
 
 struct VertexIn {
   float4 position [[attribute(0)]];
@@ -45,18 +44,4 @@ struct PointLight {
     float3 specular;
 };
 
-float3 DirectionalLight(DirectionalLight light, float3 normal, float3 viewDir);
-
-vertex Fragment
-vertexShader(VertexIn in [[stage_in]],
-             constant Transformation *transformation [[buffer(1)]]) {
-    Fragment out;
-        
-    out.position = transformation->projection * transformation->view * transformation->model * in.position;
-    
-    return out;
-}
-
-fragment float4 fragmentShader(Fragment in [[stage_in]]) {
-    return float4(1, 0, 0, 1);
-}
+#endif
