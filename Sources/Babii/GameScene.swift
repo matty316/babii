@@ -12,6 +12,7 @@ struct GameScene {
     var cam = Camera()
     var controls = Controls()
     var models = [Model]()
+    var lastDelta = Controls.Point()
     
     init(device: MTLDevice) {
         let cube = Cube(device: device)
@@ -36,7 +37,12 @@ struct GameScene {
             cam.processKeyboardMovement(direction: .right, deltaTime: deltaTime)
         }
         
-        cam.processMouseMovement(mouseDelta: controls.mouseDelta)
+        let delta = lastDelta
+                
+        if abs(controls.mouseDelta.x - delta.x) + abs(controls.mouseDelta.y - delta.y) > 0.0001 {
+            cam.processMouseMovement(mouseDelta: controls.mouseDelta)
+            lastDelta = controls.mouseDelta
+        }
     }
     
     func render(renderEncoder: MTLRenderCommandEncoder) {
