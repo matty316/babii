@@ -25,6 +25,28 @@ struct Fragment {
     float4 position [[position]];
 };
 
+struct DirectionalLight {
+    float3 direction;
+  
+    float3 ambient;
+    float3 diffuse;
+    float3 specular;
+};
+
+struct PointLight {
+    float3 position;
+    
+    float constantTerm;
+    float linearTerm;
+    float quadraticTerm;
+
+    float3 ambient;
+    float3 diffuse;
+    float3 specular;
+};
+
+float3 DirectionalLight(DirectionalLight light, float3 normal, float3 viewDir);
+
 vertex Fragment
 vertexShader(VertexIn in [[stage_in]],
              constant Transformation *transformation [[buffer(1)]]) {
