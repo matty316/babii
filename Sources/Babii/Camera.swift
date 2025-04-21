@@ -47,6 +47,10 @@ public struct Camera {
         return simd_mul(translation, rotation)
     }
     
+    var transformation: Transformation {
+        Transformation(model: model, view: view, projection: projection)
+    }
+    
     init(cameraType: CameraType = .fly) {
         self.cameraType = cameraType
         updateCameraVectors()

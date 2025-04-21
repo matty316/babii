@@ -20,8 +20,6 @@ public class Renderer: NSObject, MTKViewDelegate {
     let wireframe = false
     var scene: GameScene
     
-    public var processInputClosure: ProcessInputClosure?
-    
     @MainActor
     override public init() {
         guard let device = MTLCreateSystemDefaultDevice() else {
@@ -37,7 +35,7 @@ public class Renderer: NSObject, MTKViewDelegate {
             let fragmentFunc = library.makeFunction(name: "fragmentShader")
             
             let depthDescriptor = MTLDepthStencilDescriptor()
-            depthDescriptor.depthCompareFunction = .lessEqual
+            depthDescriptor.depthCompareFunction = .less
             depthDescriptor.isDepthWriteEnabled = true
             
             guard let depthState = device.makeDepthStencilState(descriptor: depthDescriptor) else {
@@ -92,11 +90,11 @@ public class Renderer: NSObject, MTKViewDelegate {
         lastTime = currentTime
         scene.update(deltaTime: deltaTime)
         
-        scene.render(renderEncoder: renderEncoder)
-        
         if wireframe {
             renderEncoder.setTriangleFillMode(.lines)
         }
+        
+        scene.render(renderEncoder: renderEncoder)
         
         renderEncoder.endEncoding()
         if let currentDrawable = view.currentDrawable {

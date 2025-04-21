@@ -7,7 +7,6 @@
 
 import SwiftUI
 import MetalKit
-import GameController
 
 public struct MetalView: View {
     @State var renderer = Renderer()
