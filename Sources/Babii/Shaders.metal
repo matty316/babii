@@ -9,9 +9,10 @@
 #include <simd/simd.h>
 using namespace metal;
 
-struct Vertex {
-    float4 position;
-    float4 color;
+struct VertexIn {
+  float4 position [[attribute(0)]];
+  float3 normal [[attribute(1)]];
+  float2 uv [[attribute(2)]];
 };
 
 struct Transformation {
@@ -22,21 +23,18 @@ struct Transformation {
 
 struct Fragment {
     float4 position [[position]];
-    float4 color;
 };
 
 vertex Fragment
-vertexShader(uint vertexID [[vertex_id]],
-             constant Vertex *vertices [[buffer(0)]],
+vertexShader(VertexIn in [[stage_in]],
              constant Transformation *transformation [[buffer(1)]]) {
     Fragment out;
         
-    out.position = transformation->projection * transformation->view * transformation->model * vertices[vertexID].position;
-    out.color = vertices[vertexID].color;
+    out.position = transformation->projection * transformation->view * transformation->model * in.position;
     
     return out;
 }
 
 fragment float4 fragmentShader(Fragment in [[stage_in]]) {
-    return in.color;
+    return float4(1, 0, 0, 1);
 }

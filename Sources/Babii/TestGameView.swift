@@ -9,9 +9,7 @@ import SwiftUI
 
 struct TestGameView: View {
     var body: some View {
-        MetalView { deltaTime, keys, mouseDelta in
-            
-        }
+        MetalView()
     }
 }
 
