@@ -29,7 +29,7 @@ public class Renderer: NSObject, MTKViewDelegate {
         self.device = device
         
         do {
-            let library = try device.makeDefaultLibrary(bundle: .module)
+            let library = try device.makeDefaultLibrary(bundle: .main)
             
             let vertexFunc = library.makeFunction(name: "vertexShader")
             let fragmentFunc = library.makeFunction(name: "fragmentShader")
@@ -94,7 +94,7 @@ public class Renderer: NSObject, MTKViewDelegate {
             renderEncoder.setTriangleFillMode(.lines)
         }
         
-        scene.render(renderEncoder: renderEncoder)
+        scene.render(renderEncoder: renderEncoder, device: device)
         
         renderEncoder.endEncoding()
         if let currentDrawable = view.currentDrawable {
@@ -104,32 +104,22 @@ public class Renderer: NSObject, MTKViewDelegate {
     }
     
     static func vertexDescriptor() -> MTLVertexDescriptor {
-        let vertexDescriptor = MDLVertexDescriptor()
-        var offset = 0
-        vertexDescriptor.attributes[0] = MDLVertexAttribute(
-          name: MDLVertexAttributePosition,
-          format: .float3,
-          offset: 0,
-          bufferIndex: 0)
-        offset += MemoryLayout<SIMD3<Float>>.stride
-
-        vertexDescriptor.attributes[1] = MDLVertexAttribute(
-          name: MDLVertexAttributeNormal,
-          format: .float3,
-          offset: offset,
-          bufferIndex: 0)
-        offset += MemoryLayout<SIMD3<Float>>.stride
-        vertexDescriptor.layouts[0]
-          = MDLVertexBufferLayout(stride: offset)
-
-        vertexDescriptor.attributes[2] = MDLVertexAttribute(
-          name: MDLVertexAttributeTextureCoordinate,
-          format: .float2,
-          offset: 0,
-          bufferIndex: 1)
-        vertexDescriptor.layouts[1]
-          = MDLVertexBufferLayout(stride: MemoryLayout<SIMD2<Float>>.stride)
-
-        return MTKMetalVertexDescriptorFromModelIO(vertexDescriptor)!
+        let descriptor = MTLVertexDescriptor()
+        descriptor.attributes[0].format = .float3
+        descriptor.attributes[0].offset = 0
+        descriptor.attributes[0].bufferIndex = 0
+        
+        descriptor.attributes[1].format = .float3
+        descriptor.attributes[1].offset = 1
+        descriptor.attributes[1].bufferIndex = 1
+        
+        descriptor.attributes[2].format = .float2
+        descriptor.attributes[2].offset = 2
+        descriptor.attributes[2].bufferIndex = 2
+        
+        descriptor.layouts[0].stride = MemoryLayout<SIMD3<Float>>.stride
+        descriptor.layouts[1].stride = MemoryLayout<SIMD3<Float>>.stride
+        descriptor.layouts[2].stride = MemoryLayout<SIMD2<Float>>.stride
+        return descriptor
     }
 }

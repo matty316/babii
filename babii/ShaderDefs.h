@@ -10,7 +10,7 @@
 
 struct VertexIn {
   float4 position [[attribute(0)]];
-  float3 normal [[attribute(1)]];
+  float4 normal [[attribute(1)]];
   float2 uv [[attribute(2)]];
 };
 
@@ -22,6 +22,8 @@ struct Transformation {
 
 struct Fragment {
     float4 position [[position]];
+    float4 normal;
+    float2 uv;
 };
 
 struct DirectionalLight {
@@ -42,6 +44,12 @@ struct PointLight {
     float3 ambient;
     float3 diffuse;
     float3 specular;
+};
+
+struct Material {
+    texture2d<float> diffuse;
+    texture2d<float> specular;
+    float shininess;
 };
 
 #endif

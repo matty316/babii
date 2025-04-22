@@ -12,7 +12,9 @@ using namespace metal;
 
 //float3 calcDirLight(DirectionalLight light, float3 normal, float3 viewDir);
 
-fragment float4 fragmentShader(Fragment in [[stage_in]]) {
+fragment float4 fragmentShader(Fragment in [[stage_in]], texture2d<float> diffuse [[texture(0)]]) {
+    constexpr sampler textureSampler (mag_filter::linear, min_filter::linear, address::repeat);
+    float3 color = diffuse.sample(textureSampler, in.uv).rgb;
     return float4(1, 0, 0, 1);
 }
 
