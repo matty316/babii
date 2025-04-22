@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		48E66ABA2DB8262B00CB8446 /* babii.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = babii.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		48E66AF62DB8274100CB8446 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -41,6 +42,13 @@
 			isa = PBXGroup;
 			children = (
 				48E66ABA2DB8262B00CB8446 /* babii.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		48E66B092DB8274100CB8446 /* Products */ = {
+			isa = PBXGroup;
+			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -97,6 +105,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 48E66ABB2DB8262B00CB8446 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 48E66B092DB8274100CB8446 /* Products */;
+					ProjectRef = 48E66AF62DB8274100CB8446 /* babii.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				48E66AB92DB8262B00CB8446 /* babii */,
@@ -270,6 +284,7 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = babii/Common.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.4;
@@ -307,6 +322,7 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = babii/Common.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.4;

@@ -16,7 +16,8 @@ struct GameScene {
     var textureLoader = TextureLoader()
     
     init(device: MTLDevice) {
-        let cube = Cube()
+        let texture = textureLoader.loadTexture(name: "container", device: device)
+        let cube = Cube(texture: texture)
         models.append(cube)
     }
     

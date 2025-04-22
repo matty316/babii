@@ -26,26 +26,6 @@ struct Fragment {
     float2 uv;
 };
 
-struct DirectionalLight {
-    float3 direction;
-  
-    float3 ambient;
-    float3 diffuse;
-    float3 specular;
-};
-
-struct PointLight {
-    float3 position;
-    
-    float constantTerm;
-    float linearTerm;
-    float quadraticTerm;
-
-    float3 ambient;
-    float3 diffuse;
-    float3 specular;
-};
-
 struct Material {
     texture2d<float> diffuse;
     texture2d<float> specular;

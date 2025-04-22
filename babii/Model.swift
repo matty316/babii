@@ -12,6 +12,8 @@ protocol Model {
 }
 
 struct Cube: Model {
+    let texture: MTLTexture?
+    
     let vertices: [Vertex] = [
         Vertex([-0.5, -0.5, -0.5], [0.0,  0.0, -1.0], [0.0,  0.0]),
         Vertex([ 0.5, -0.5, -0.5],  [0.0,  0.0, -1.0], [1.0,  0.0]),
@@ -56,9 +58,22 @@ struct Cube: Model {
         Vertex([-0.5,  0.5, -0.5],  [0.0,  1.0,  0.0], [0.0,  1.0])
     ]
     
+    init(texture: MTLTexture?) {
+        self.texture = texture
+    }
+    
+    init() {
+        self.texture = nil
+    }
+    
     func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice) {
         let buffer = device.makeBuffer(bytes: vertices, length: MemoryLayout<Vertex>.stride * vertices.count)
         renderEncoder.setVertexBuffer(buffer, offset: 0, index: 0)
+        
+        if let texture {
+            renderEncoder.setFragmentTexture(texture, index: 0)
+        }
+        
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertices.count)
     }
 }
