@@ -13,9 +13,11 @@ struct GameScene {
     var controls = Controls()
     var models = [Model]()
     var lastMouseDelta = Controls.Point()
+    var textureLoader = TextureLoader()
     
     init(device: MTLDevice) {
-        let cube = Cube(device: device)
+        let texture = textureLoader.loadTexture(name: "container", device: device)
+        let cube = Cube(texture: texture)
         models.append(cube)
     }
     
@@ -45,11 +47,11 @@ struct GameScene {
         }
     }
     
-    func render(renderEncoder: MTLRenderCommandEncoder) {
+    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice) {
         var transformation = cam.transformation
         renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 1)
         for model in models {
-            model.render(renderEncoder: renderEncoder)
+            model.render(renderEncoder: renderEncoder, device: device)
         }
     }
 }

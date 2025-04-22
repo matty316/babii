@@ -16,6 +16,8 @@ vertexShader(VertexIn in [[stage_in]],
     Fragment out;
         
     out.position = transformation->projection * transformation->view * transformation->model * in.position;
+    out.normal = in.normal;
+    out.uv = in.uv;
     
     return out;
 }
