@@ -24,6 +24,7 @@ struct Fragment {
     float4 position [[position]];
     float4 normal;
     float2 uv;
+    float4 worldPosition;
 };
 
 struct Material {

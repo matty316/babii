@@ -55,16 +55,41 @@ struct GameScene {
         var viewPos = cam.position
         renderEncoder.setFragmentBytes(&viewPos, length: MemoryLayout<SIMD3<Float>>.stride, index: 2)
         
+        let ambient: Float = 0.05
+        var diffuse: Float = 0.4
+        var specular: Float = 0.5
         var dirLight = DirectionalLight(
             direction: [-0.2, -1.0, -0.3],
-            ambient: [0.05, 0.05, 0.05],
-            diffuse: [0.4, 0.4, 0.4],
-            specular: [0.5, 0.5, 0.5]
+            ambient: [ambient, ambient, ambient],
+            diffuse: [diffuse, diffuse, diffuse],
+            specular: [specular, specular, specular]
         )
         
+        diffuse = 0.8
+        specular = 1.0
+        let pointLightPositions: [SIMD3<Float>] = [
+            [0.7, 0.2, 2.0],
+            [2.3, -3.3, -4.0],
+            [-4.0, 2.0, -12.0],
+            [0.0, 0.0, -3.0],
+        ]
         
+        var pointLights = [PointLight]()
+        for position in pointLightPositions {
+            let point = PointLight(
+                position: position,
+                attenuation: [1.0, 0.09, 0.032],
+                ambient: [ambient, ambient, ambient],
+                diffuse: [diffuse, diffuse, diffuse],
+                specular: [specular, specular, specular]
+            )
+            pointLights.append(point)
+        }
         
         renderEncoder.setFragmentBytes(&dirLight, length: MemoryLayout<DirectionalLight>.stride, index: 3)
+        renderEncoder.setFragmentBytes(&pointLights, length: MemoryLayout<PointLight>.stride * pointLights.count, index: 4)
+        var count = UInt32(pointLights.count)
+        renderEncoder.setFragmentBytes(&count, length: MemoryLayout<UInt32>.stride, index: 5)
         for model in models {
             model.render(renderEncoder: renderEncoder, device: device)
         }

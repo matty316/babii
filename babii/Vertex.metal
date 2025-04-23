@@ -18,6 +18,7 @@ vertexShader(VertexIn in [[stage_in]],
     out.position = transformation->projection * transformation->view * transformation->model * in.position;
     out.normal = in.normal;
     out.uv = in.uv;
+    out.worldPosition = transformation->model * in.position;
     
     return out;
 }

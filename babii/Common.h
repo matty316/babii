@@ -20,11 +20,7 @@ struct DirectionalLight {
 
 struct PointLight {
     vector_float3 position;
-    
-    float constantTerm;
-    float linearTerm;
-    float quadraticTerm;
-
+    vector_float3 attenuation;
     vector_float3 ambient;
     vector_float3 diffuse;
     vector_float3 specular;
