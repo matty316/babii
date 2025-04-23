@@ -17,10 +17,9 @@ public class Renderer: NSObject, MTKViewDelegate {
     let pipelineState: MTLRenderPipelineState
     let commandQueue: MTLCommandQueue
     var lastTime: Double = CFAbsoluteTimeGetCurrent()
-    let wireframe = false
+    let wireframe = true
     var scene: GameScene
     
-    @MainActor
     override public init() {
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("Unable to get GPU")
@@ -32,10 +31,10 @@ public class Renderer: NSObject, MTKViewDelegate {
             let library = try device.makeDefaultLibrary(bundle: .main)
             
             let vertexFunc = library.makeFunction(name: "vertexShader")
-            let fragmentFunc = library.makeFunction(name: "fragmentShader")
+            let fragmentFunc = library.makeFunction(name: wireframe ? "fragmentSolid" : "fragmentShader")
             
             let depthDescriptor = MTLDepthStencilDescriptor()
-            depthDescriptor.depthCompareFunction = .less
+            depthDescriptor.depthCompareFunction = .lessEqual
             depthDescriptor.isDepthWriteEnabled = true
             
             guard let depthState = device.makeDepthStencilState(descriptor: depthDescriptor) else {
@@ -84,6 +83,8 @@ public class Renderer: NSObject, MTKViewDelegate {
         
         renderEncoder.setDepthStencilState(depthState)
         renderEncoder.setRenderPipelineState(pipelineState)
+        renderEncoder.setFrontFacing(.counterClockwise)
+        renderEncoder.setCullMode(.back)
        
         let currentTime = CFAbsoluteTimeGetCurrent()
         let deltaTime = Float(currentTime - lastTime)
@@ -120,4 +121,12 @@ public class Renderer: NSObject, MTKViewDelegate {
         descriptor.layouts[0].stride = MemoryLayout<Vertex>.stride
         return descriptor
     }
+    
+//    static func depthTexture() -> MTLTextureDescriptor {
+//        
+//    }
+//    
+//    static func msaaTexture() -> MTLTextureDescriptor {
+//        
+//    }
 }

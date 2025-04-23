@@ -16,9 +16,11 @@ struct GameScene {
     var textureLoader = TextureLoader()
     
     init(device: MTLDevice) {
-        let texture = textureLoader.loadTexture(name: "container", device: device)
-        let cube = Cube(texture: texture)
-        models.append(cube)
+        if let diffuse = textureLoader.loadTexture(name: "container", device: device),
+           let specular  = textureLoader.loadTexture(name: "container_spec", device: device) {
+            let cube = Cube(diffuse: diffuse, specular: specular)
+            models.append(cube)
+        }
     }
     
     mutating func update(size: CGSize) {
@@ -50,6 +52,19 @@ struct GameScene {
     func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice) {
         var transformation = cam.transformation
         renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 1)
+        var viewPos = cam.position
+        renderEncoder.setFragmentBytes(&viewPos, length: MemoryLayout<SIMD3<Float>>.stride, index: 2)
+        
+        var dirLight = DirectionalLight(
+            direction: [-0.2, -1.0, -0.3],
+            ambient: [0.05, 0.05, 0.05],
+            diffuse: [0.4, 0.4, 0.4],
+            specular: [0.5, 0.5, 0.5]
+        )
+        
+        
+        
+        renderEncoder.setFragmentBytes(&dirLight, length: MemoryLayout<DirectionalLight>.stride, index: 3)
         for model in models {
             model.render(renderEncoder: renderEncoder, device: device)
         }

@@ -9,6 +9,7 @@
 /* Begin PBXFileReference section */
 		48E66ABA2DB8262B00CB8446 /* babii.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = babii.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48E66AF62DB8274100CB8446 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
+		48E66B482DB8374800CB8446 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -47,6 +48,13 @@
 			sourceTree = "<group>";
 		};
 		48E66B092DB8274100CB8446 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		48E66B592DB8374800CB8446 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -109,6 +117,10 @@
 				{
 					ProductGroup = 48E66B092DB8274100CB8446 /* Products */;
 					ProjectRef = 48E66AF62DB8274100CB8446 /* babii.xcodeproj */;
+				},
+				{
+					ProductGroup = 48E66B592DB8374800CB8446 /* Products */;
+					ProjectRef = 48E66B482DB8374800CB8446 /* babii.xcodeproj */;
 				},
 			);
 			projectRoot = "";

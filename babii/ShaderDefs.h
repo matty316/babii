@@ -29,7 +29,7 @@ struct Fragment {
 struct Material {
     texture2d<float> diffuse;
     texture2d<float> specular;
-    float shininess;
+    float shininess = 32.f;
 };
 
 #endif

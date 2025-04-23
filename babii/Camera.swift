@@ -51,7 +51,7 @@ public struct Camera {
         Transformation(model: model, view: view, projection: projection)
     }
     
-    init(cameraType: CameraType = .fly) {
+    init(cameraType: CameraType = .fps) {
         self.cameraType = cameraType
         updateCameraVectors()
     }

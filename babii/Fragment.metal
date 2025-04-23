@@ -11,23 +11,38 @@ using namespace metal;
 #import "ShaderDefs.h"
 #import "Common.h"
 
-float3 calcDirLight(DirectionalLight light, float3 normal, float3 viewDir);
+float3 calcDirLight(DirectionalLight light, float3 normal, float3 viewDir, Material material, float2 uv);
 
-fragment float4 fragmentShader(Fragment in [[stage_in]], texture2d<float> diffuse [[texture(0)]], constant Material &material [[buffer(1)]]) {
-    float3 color;
-    if (!is_null_texture(diffuse)) {
-        constexpr sampler textureSampler (mag_filter::linear, min_filter::linear, address::repeat);
-        color = diffuse.sample(textureSampler, in.uv).rgb;
-    } else {
-        color = float3(1, 0, 0);
-    }
-    return float4(color, 1);
+fragment float4 fragmentShader(Fragment in [[stage_in]],
+                               texture2d<float> diffuse [[texture(0)]],
+                               texture2d<float> specular [[texture(1)]],
+                               constant float3 &viewPos [[buffer(2)]],
+                               constant DirectionalLight &dirLight [[buffer(3)]],
+                               constant PointLight *pointLights [[buffer(4)]],
+                               constant uint &numOfPointLights [[buffer(5)]]) {
+    float3 norm = normalize(in.normal).xyz;
+    float3 viewDir = normalize(viewPos - in.position.xyz).xyz;
+    Material material{diffuse, specular};
+    float3 result = calcDirLight(dirLight, norm, viewDir, material, in.uv);
+    return float4(result, 1);
 }
 
-//float3 calcDirLight(DirectionalLight light, float3 normal, float3 viewDir, float shininess, Material material) {
-//    float3 lightDir = normalize(-light.direction);
-//    float diff = max(dot(normal, lightDir), 0.0);
-//    float3 reflectDir = reflect(-lightDir, normal);
-//    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-//    float3 ambient = light.ambient * float3(te)
-//}
+fragment float4 fragmentSolid(Fragment in [[stage_in]]) {
+    return float4(1, 0, 0, 1);
+}
+
+float3 calcDirLight(DirectionalLight light, float3 normal, float3 viewDir, Material material, float2 uv) {
+    float3 lightDir = normalize(-light.direction);
+    float diff = max(dot(normal, lightDir), 0.0);
+    float3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    constexpr sampler textureSampler (mag_filter::linear, min_filter::linear, address::repeat);
+    float3 ambient = light.ambient * material.diffuse.sample(textureSampler, uv).rgb;
+    float3 diffuse = light.diffuse * diff * material.diffuse.sample(textureSampler, uv).rbg;
+    float3 specular = light.specular * spec * material.specular.sample(textureSampler, uv).rgb;
+    return ambient + diffuse + specular;
+}
+
+float3 calcPointLight(PointLight light, float3 normal, float3 fragPos, float3 viewDir) {
+    
+}
