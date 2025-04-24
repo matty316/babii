@@ -25,13 +25,19 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
     float3 norm = normalize(in.normal).xyz;
     float3 fragPos = in.worldPosition.xyz;
     float3 viewDir = normalize(viewPos - fragPos);
-    Material material{diffuse, specular};
-    float3 result = calcDirLight(dirLight, norm, viewDir, material, in.uv);
-    
-    for (size_t i = 0; i < numOfPointLights; i++)
-        result += calcPointLight(pointLights[i], norm, fragPos, viewDir, material, in.uv);
-    
-    return float4(result, 1);
+    if (!is_null_texture(diffuse) && !is_null_texture(specular)) {
+        Material material{diffuse, specular, 32.0f};
+        float3 result = calcDirLight(dirLight, norm, viewDir, material, in.uv);
+        
+        for (size_t i = 0; i < numOfPointLights; i++)
+            result += calcPointLight(pointLights[i], norm, fragPos, viewDir, material, in.uv);
+        
+        return float4(result, 1);
+    } else if (!is_null_texture(diffuse)) {
+        float3 color = diffuse.sample(textureSampler, in.uv).rgb;
+        return float4(color, 1);
+    }
+    return float4(1, 0, 0, 1);
 }
 
 fragment float4 fragmentSolid(Fragment in [[stage_in]]) {
@@ -40,9 +46,9 @@ fragment float4 fragmentSolid(Fragment in [[stage_in]]) {
 
 float3 calcDirLight(DirectionalLight light, float3 normal, float3 viewDir, Material material, float2 uv) {
     float3 lightDir = normalize(-light.direction);
-    float diff = max(dot(normal, lightDir), 0.0);
+    float diff = saturate(dot(normal, lightDir));
     float3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    float spec = pow(saturate(dot(viewDir, reflectDir)), material.shininess);
     float3 ambient = light.ambient * material.diffuse.sample(textureSampler, uv).rgb;
     float3 diffuse = light.diffuse * diff * material.diffuse.sample(textureSampler, uv).rgb;
     float3 specular = light.specular * spec * material.specular.sample(textureSampler, uv).rgb;

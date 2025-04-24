@@ -12,7 +12,7 @@ using namespace metal;
 
 vertex Fragment
 vertexShader(VertexIn in [[stage_in]],
-             constant Transformation *transformation [[buffer(1)]]) {
+             constant Transformation *transformation [[buffer(11)]]) {
     Fragment out;
         
     out.position = transformation->projection * transformation->view * transformation->model * in.position;

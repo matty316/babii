@@ -9,6 +9,8 @@
 /* Begin PBXFileReference section */
 		486F0DE22DB99D6500DE6CF7 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
 		4892471E2DBA75AE0019F740 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
+		48A1205A2DBA85BF00264F8F /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
+		48A1208B2DBA85CC00264F8F /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
 		48E66ABA2DB8262B00CB8446 /* babii.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = babii.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48E66AF62DB8274100CB8446 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
 		48E66B482DB8374800CB8446 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
@@ -41,6 +43,20 @@
 			sourceTree = "<group>";
 		};
 		489247202DBA75AE0019F740 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		48A1205C2DBA85BF00264F8F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		48A1208D2DBA85CC00264F8F /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -131,6 +147,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 48A1205C2DBA85BF00264F8F /* Products */;
+					ProjectRef = 48A1205A2DBA85BF00264F8F /* babii.xcodeproj */;
+				},
+				{
 					ProductGroup = 48E66B092DB8274100CB8446 /* Products */;
 					ProjectRef = 48E66AF62DB8274100CB8446 /* babii.xcodeproj */;
 				},
@@ -145,6 +165,10 @@
 				{
 					ProductGroup = 48E66B592DB8374800CB8446 /* Products */;
 					ProjectRef = 48E66B482DB8374800CB8446 /* babii.xcodeproj */;
+				},
+				{
+					ProductGroup = 48A1208D2DBA85CC00264F8F /* Products */;
+					ProjectRef = 48A1208B2DBA85CC00264F8F /* babii.xcodeproj */;
 				},
 			);
 			projectRoot = "";

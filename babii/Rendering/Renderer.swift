@@ -14,6 +14,7 @@ public typealias ProcessInputClosure = ((TimeInterval, [GCKeyCode: Bool], SIMD2<
 public class Renderer: NSObject, MTKViewDelegate {
     let device: MTLDevice
     let depthState: MTLDepthStencilState
+    let vertexPipelineState: MTLRenderPipelineState
     let pipelineState: MTLRenderPipelineState
     let commandQueue: MTLCommandQueue
     var lastTime: Double = CFAbsoluteTimeGetCurrent()
@@ -54,7 +55,10 @@ public class Renderer: NSObject, MTKViewDelegate {
             
             let pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
             
-            self.pipelineState = pipelineState
+            self.vertexPipelineState = pipelineState
+            
+            pipelineStateDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
+            self.pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
             
             guard let commandQueue = device.makeCommandQueue() else {
                 fatalError("cannot make command queue")
@@ -95,7 +99,7 @@ public class Renderer: NSObject, MTKViewDelegate {
             renderEncoder.setTriangleFillMode(.lines)
         }
         
-        scene.render(renderEncoder: renderEncoder, device: device)
+        scene.render(renderEncoder: renderEncoder, device: device, modelPipelineState: pipelineState, vertexPipelineState: vertexPipelineState)
         
         renderEncoder.endEncoding()
         if let currentDrawable = view.currentDrawable {

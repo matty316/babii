@@ -21,6 +21,10 @@ struct GameScene {
             let cube = Cube(diffuse: diffuse, specular: specular)
             models.append(cube)
         }
+//        if let groundTexture = textureLoader.loadTexture(name: "ground", device: device) {
+//            let ground = Plane(texture: groundTexture, device: device)
+//            models.append(ground)
+//        }
     }
     
     mutating func update(size: CGSize) {
@@ -49,9 +53,9 @@ struct GameScene {
         }
     }
     
-    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice) {
+    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, modelPipelineState: MTLRenderPipelineState, vertexPipelineState: MTLRenderPipelineState) {
         var transformation = cam.transformation
-        renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 1)
+        renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 11)
         var viewPos = cam.position
         renderEncoder.setFragmentBytes(&viewPos, length: MemoryLayout<SIMD3<Float>>.stride, index: 2)
         
@@ -91,6 +95,12 @@ struct GameScene {
         var count = UInt32(pointLights.count)
         renderEncoder.setFragmentBytes(&count, length: MemoryLayout<UInt32>.stride, index: 5)
         for model in models {
+            switch model.type {
+            case .ModelIO:
+                renderEncoder.setRenderPipelineState(modelPipelineState)
+            case .Vertex:
+                renderEncoder.setRenderPipelineState(vertexPipelineState)
+            }
             model.render(renderEncoder: renderEncoder, device: device)
         }
     }
