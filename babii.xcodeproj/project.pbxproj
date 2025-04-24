@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		486F0DE22DB99D6500DE6CF7 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
+		4892471E2DBA75AE0019F740 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
 		48E66ABA2DB8262B00CB8446 /* babii.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = babii.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48E66AF62DB8274100CB8446 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
 		48E66B482DB8374800CB8446 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
@@ -31,11 +33,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		486F0E0A2DBA74C400DE6CF7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		489247202DBA75AE0019F740 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		48E66AB12DB8262B00CB8446 = {
 			isa = PBXGroup;
 			children = (
-				48E66ABC2DB8262B00CB8446 /* babii */,
 				48E66ABB2DB8262B00CB8446 /* Products */,
+				48E66ABC2DB8262B00CB8446 /* babii */,
 			);
 			sourceTree = "<group>";
 		};
@@ -117,6 +133,14 @@
 				{
 					ProductGroup = 48E66B092DB8274100CB8446 /* Products */;
 					ProjectRef = 48E66AF62DB8274100CB8446 /* babii.xcodeproj */;
+				},
+				{
+					ProductGroup = 486F0E0A2DBA74C400DE6CF7 /* Products */;
+					ProjectRef = 486F0DE22DB99D6500DE6CF7 /* babii.xcodeproj */;
+				},
+				{
+					ProductGroup = 489247202DBA75AE0019F740 /* Products */;
+					ProjectRef = 4892471E2DBA75AE0019F740 /* babii.xcodeproj */;
 				},
 				{
 					ProductGroup = 48E66B592DB8374800CB8446 /* Products */;
@@ -296,7 +320,7 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = babii/Common.h;
+				SWIFT_OBJC_BRIDGING_HEADER = babii/Shaders/Common.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.4;
@@ -334,7 +358,7 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = babii/Common.h;
+				SWIFT_OBJC_BRIDGING_HEADER = babii/Shaders/Common.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 2.4;
