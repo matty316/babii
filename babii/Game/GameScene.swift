@@ -14,17 +14,21 @@ struct GameScene {
     var models = [Model]()
     var lastMouseDelta = Controls.Point()
     var textureLoader = TextureLoader()
+    let groundVertexDescriptor: MTLVertexDescriptor?
     
     init(device: MTLDevice) {
-        if let diffuse = textureLoader.loadTexture(name: "container", device: device),
-           let specular  = textureLoader.loadTexture(name: "container_spec", device: device) {
-            let cube = Cube(diffuse: diffuse, specular: specular)
-            models.append(cube)
-        }
-//        if let groundTexture = textureLoader.loadTexture(name: "ground", device: device) {
-//            let ground = Plane(texture: groundTexture, device: device)
-//            models.append(ground)
+//        if let diffuse = textureLoader.loadTexture(name: "container", device: device),
+//           let specular  = textureLoader.loadTexture(name: "container_spec", device: device) {
+//            let cube = Cube(diffuse: diffuse, specular: specular)
+//            models.append(cube)
 //        }
+        if let groundTexture = textureLoader.loadTexture(name: "ground", device: device) {
+            let ground = Plane(texture: groundTexture, device: device)
+            models.append(ground)
+            self.groundVertexDescriptor = MTKMetalVertexDescriptorFromModelIO(ground.mesh.vertexDescriptor)
+        } else {
+            self.groundVertexDescriptor = nil
+        }
     }
     
     mutating func update(size: CGSize) {

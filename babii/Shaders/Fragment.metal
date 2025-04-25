@@ -22,7 +22,7 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
                                constant DirectionalLight &dirLight [[buffer(3)]],
                                constant PointLight *pointLights [[buffer(4)]],
                                constant uint &numOfPointLights [[buffer(5)]]) {
-    float3 norm = normalize(in.normal).xyz;
+    float3 norm = normalize(in.normal);
     float3 fragPos = in.worldPosition.xyz;
     float3 viewDir = normalize(viewPos - fragPos);
     if (!is_null_texture(diffuse) && !is_null_texture(specular)) {

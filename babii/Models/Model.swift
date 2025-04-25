@@ -33,16 +33,16 @@ extension MTLVertexDescriptor {
           offset: offset,
           bufferIndex: 0)
         offset += MemoryLayout<SIMD3<Float>>.stride
-        vertexDescriptor.layouts[0]
-          = MDLVertexBufferLayout(stride: offset)
 
         vertexDescriptor.attributes[2] = MDLVertexAttribute(
           name: MDLVertexAttributeTextureCoordinate,
           format: .float2,
-          offset: 0,
-          bufferIndex: 1)
-        vertexDescriptor.layouts[1]
-          = MDLVertexBufferLayout(stride: MemoryLayout<SIMD2<Float>>.stride)
+          offset: offset,
+          bufferIndex: 0)
+        offset += MemoryLayout<SIMD2<Float>>.stride
+        
+        vertexDescriptor.layouts[0]
+          = MDLVertexBufferLayout(stride: offset)
 
         return MTKMetalVertexDescriptorFromModelIO(vertexDescriptor)!
     }

@@ -18,7 +18,7 @@ public class Renderer: NSObject, MTKViewDelegate {
     let pipelineState: MTLRenderPipelineState
     let commandQueue: MTLCommandQueue
     var lastTime: Double = CFAbsoluteTimeGetCurrent()
-    let wireframe = false
+    let wireframe = true
     var scene: GameScene
     
     override public init() {
@@ -57,7 +57,7 @@ public class Renderer: NSObject, MTKViewDelegate {
             
             self.vertexPipelineState = pipelineState
             
-            pipelineStateDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
+            pipelineStateDescriptor.vertexDescriptor = scene.groundVertexDescriptor
             self.pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
             
             guard let commandQueue = device.makeCommandQueue() else {

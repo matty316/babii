@@ -8,9 +8,12 @@
 #ifndef ShaderDefs_h
 #define ShaderDefs_h
 
+#include <metal_stdlib>
+using namespace metal;
+
 struct VertexIn {
   float4 position [[attribute(0)]];
-  float4 normal [[attribute(1)]];
+  float3 normal [[attribute(1)]];
   float2 uv [[attribute(2)]];
 };
 
@@ -22,7 +25,7 @@ struct Transformation {
 
 struct Fragment {
     float4 position [[position]];
-    float4 normal;
+    float3 normal;
     float2 uv;
     float4 worldPosition;
 };
