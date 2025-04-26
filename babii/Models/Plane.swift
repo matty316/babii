@@ -13,7 +13,7 @@ struct Plane: Model {
     let mesh: MTKMesh
     let type: ModelType
     var position: SIMD3<Float> = [0, -1, 0]
-    var rotationAngle: Float = 90
+    var rotationAngle: Float = 270
     var rotation: SIMD3<Float> = [0, 0, 1]
     var scale: Float = 20
     
@@ -32,7 +32,6 @@ struct Plane: Model {
     }
     
     func render(renderEncoder: any MTLRenderCommandEncoder, device: any MTLDevice) {
-        renderEncoder.setCullMode(.none)
         renderEncoder.setFragmentTexture(diffuse, index: 0)
         renderEncoder.setFragmentTexture(specular, index: 1)
         for (i, buffer) in mesh.vertexBuffers.enumerated() {

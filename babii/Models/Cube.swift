@@ -73,9 +73,6 @@ struct Cube: Model {
         renderEncoder.setFragmentTexture(diffuse, index: 0)
         renderEncoder.setFragmentTexture(specular, index: 1)
         
-        renderEncoder.setFrontFacing(.counterClockwise)
-        renderEncoder.setCullMode(.back)
-        
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertices.count)
     }
 }

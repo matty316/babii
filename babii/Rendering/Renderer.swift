@@ -87,6 +87,8 @@ public class Renderer: NSObject, MTKViewDelegate {
         
         renderEncoder.setDepthStencilState(depthState)
         renderEncoder.setRenderPipelineState(pipelineState)
+        renderEncoder.setFrontFacing(.counterClockwise)
+        renderEncoder.setCullMode(.back)
        
         let currentTime = CFAbsoluteTimeGetCurrent()
         let deltaTime = Float(currentTime - lastTime)
