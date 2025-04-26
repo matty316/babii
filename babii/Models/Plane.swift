@@ -12,7 +12,7 @@ struct Plane: Model {
     let specular: MTLTexture
     let mesh: MTKMesh
     let type: ModelType
-    var position: SIMD3<Float> = [0, -0.5, 0]
+    var position: SIMD3<Float> = [0, -1, 0]
     var rotationAngle: Float = 90
     var rotation: SIMD3<Float> = [0, 0, 1]
     var scale: Float = 20

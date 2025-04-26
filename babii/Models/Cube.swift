@@ -11,10 +11,10 @@ struct Cube: Model {
     let diffuse: MTLTexture
     let specular: MTLTexture
     let type: ModelType
-    var position: SIMD3<Float> = [0, 0, 0]
+    var position: SIMD3<Float> = [0, -0.75, 0]
     var rotationAngle: Float = 0
-    var rotation: SIMD3<Float> = [0, 1, 0]
-    var scale: Float = 1
+    var rotation: SIMD3<Float> = [0, 0, 0]
+    var scale: Float = 0.5
   
     let vertices: [Vertex] = [
         // Front Face
