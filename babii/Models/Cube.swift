@@ -11,6 +11,10 @@ struct Cube: Model {
     let diffuse: MTLTexture
     let specular: MTLTexture
     let type: ModelType
+    var position: SIMD3<Float> = [0, 0, 0]
+    var rotationAngle: Float = 0
+    var rotation: SIMD3<Float> = [0, 1, 0]
+    var scale: Float = 1
   
     let vertices: [Vertex] = [
         // Front Face
@@ -68,6 +72,9 @@ struct Cube: Model {
         
         renderEncoder.setFragmentTexture(diffuse, index: 0)
         renderEncoder.setFragmentTexture(specular, index: 1)
+        
+        renderEncoder.setFrontFacing(.counterClockwise)
+        renderEncoder.setCullMode(.back)
         
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertices.count)
     }

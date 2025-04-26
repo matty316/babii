@@ -8,13 +8,19 @@
 import MetalKit
 
 struct Plane: Model {
-    let texture: MTLTexture
+    let diffuse: MTLTexture
+    let specular: MTLTexture
     let mesh: MTKMesh
     let type: ModelType
+    var position: SIMD3<Float> = [0, -0.5, 0]
+    var rotationAngle: Float = 90
+    var rotation: SIMD3<Float> = [0, 0, 1]
+    var scale: Float = 20
     
-    init(texture: MTLTexture, device: MTLDevice) {
+    init(diffuse: MTLTexture, specular: MTLTexture, device: MTLDevice) {
         self.type = .ModelIO
-        self.texture = texture
+        self.diffuse = diffuse
+        self.specular = specular
         let allocator = MTKMeshBufferAllocator(device: device)
         let mdlMesh = MDLMesh(
             planeWithExtent: [1, 1, 1],
@@ -26,7 +32,9 @@ struct Plane: Model {
     }
     
     func render(renderEncoder: any MTLRenderCommandEncoder, device: any MTLDevice) {
-        renderEncoder.setFragmentTexture(texture, index: 0)
+        renderEncoder.setCullMode(.none)
+        renderEncoder.setFragmentTexture(diffuse, index: 0)
+        renderEncoder.setFragmentTexture(specular, index: 1)
         for (i, buffer) in mesh.vertexBuffers.enumerated() {
             renderEncoder.setVertexBuffer(buffer.buffer, offset: 0, index: i)
         }

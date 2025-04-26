@@ -30,24 +30,18 @@ public struct Camera {
     let movementSpeed: Float = 2.5
     let mouseSensitivity: Float = 0.1
     let zoom: Float = 45
-    let fov = radians(from: 45)
+    let fov = Math.radians(from: 45)
     var aspect: Float = 1.0
     
     var view: matrix_float4x4 {
-        lookAt(position: position, target: position + front, up: up)
+        Math.lookAt(position: position, target: position + front, up: up)
     }
     
     var projection: matrix_float4x4 {
-        perspective(fovyRadians: fov, aspect: aspect, nearZ: 0.1, farZ: 100)
+        Math.perspective(fovyRadians: fov, aspect: aspect, nearZ: 0.1, farZ: 100)
     }
     
-    var model: matrix_float4x4 {
-        let translation = translation(vector: [0, 0, 0])
-        let rotation = rotation(angle: radians(from: 0), vector: [0, 1, 0])
-        return simd_mul(translation, rotation)
-    }
-    
-    var transformation: Transformation {
+    func transformation(model: matrix_float4x4) -> Transformation {
         Transformation(model: model, view: view, projection: projection)
     }
     
@@ -62,9 +56,9 @@ public struct Camera {
     
     mutating func updateCameraVectors() {
         var newFront: SIMD3<Float> = [0, 0, 0]
-        newFront.x = cos(radians(from: yaw)) * cos(radians(from: pitch))
-        newFront.y = sin(radians(from: pitch))
-        newFront.z = sin(radians(from: yaw)) * cos(radians(from: pitch))
+        newFront.x = cos(Math.radians(from: yaw)) * cos(Math.radians(from: pitch))
+        newFront.y = sin(Math.radians(from: pitch))
+        newFront.z = sin(Math.radians(from: yaw)) * cos(Math.radians(from: pitch))
         front = normalize(newFront)
         right = normalize(cross(front, worldUp))
         up = normalize(cross(right, front))

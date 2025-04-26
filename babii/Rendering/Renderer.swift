@@ -18,7 +18,7 @@ public class Renderer: NSObject, MTKViewDelegate {
     let pipelineState: MTLRenderPipelineState
     let commandQueue: MTLCommandQueue
     var lastTime: Double = CFAbsoluteTimeGetCurrent()
-    let wireframe = true
+    let wireframe = false
     var scene: GameScene
     
     override public init() {
@@ -87,8 +87,6 @@ public class Renderer: NSObject, MTKViewDelegate {
         
         renderEncoder.setDepthStencilState(depthState)
         renderEncoder.setRenderPipelineState(pipelineState)
-        renderEncoder.setFrontFacing(.counterClockwise)
-        renderEncoder.setCullMode(.back)
        
         let currentTime = CFAbsoluteTimeGetCurrent()
         let deltaTime = Float(currentTime - lastTime)
