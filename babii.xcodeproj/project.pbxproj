@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		485ACA6B2DFF403300CDFB37 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
+		48621EEC2E02FC230027DB6F /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
 		486F0DE22DB99D6500DE6CF7 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
 		4892471E2DBA75AE0019F740 /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
 		48A1205A2DBA85BF00264F8F /* babii.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = babii.xcodeproj; sourceTree = "<group>"; };
@@ -37,6 +38,13 @@
 
 /* Begin PBXGroup section */
 		485ACA6D2DFF403300CDFB37 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		48621EEE2E02FC230027DB6F /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -165,6 +173,10 @@
 				{
 					ProductGroup = 48E66B092DB8274100CB8446 /* Products */;
 					ProjectRef = 48E66AF62DB8274100CB8446 /* babii.xcodeproj */;
+				},
+				{
+					ProductGroup = 48621EEE2E02FC230027DB6F /* Products */;
+					ProjectRef = 48621EEC2E02FC230027DB6F /* babii.xcodeproj */;
 				},
 				{
 					ProductGroup = 486F0E0A2DBA74C400DE6CF7 /* Products */;
@@ -331,6 +343,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = babii/babii.entitlements;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -369,6 +382,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = babii/babii.entitlements;
+				CODE_SIGN_INJECT_BASE_ENTITLEMENTS = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
