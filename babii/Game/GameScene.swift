@@ -61,7 +61,7 @@ struct GameScene {
         }
     }
     
-    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, modelPipelineState: MTLRenderPipelineState, vertexPipelineState: MTLRenderPipelineState) {
+    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, groundPipelineState: MTLRenderPipelineState, vertexPipelineState: MTLRenderPipelineState, model3DPipelineState: MTLRenderPipelineState) {
         var viewPos = cam.position
         renderEncoder.setFragmentBytes(&viewPos, length: MemoryLayout<SIMD3<Float>>.stride, index: 2)
         
@@ -105,9 +105,11 @@ struct GameScene {
             renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 11)
             switch model.type {
             case .ModelIO:
-                renderEncoder.setRenderPipelineState(modelPipelineState)
+                renderEncoder.setRenderPipelineState(model3DPipelineState)
             case .Vertex:
                 renderEncoder.setRenderPipelineState(vertexPipelineState)
+            case .Ground:
+                renderEncoder.setRenderPipelineState(groundPipelineState)
             }
             model.render(renderEncoder: renderEncoder, device: device)
         }

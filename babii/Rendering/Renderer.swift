@@ -15,7 +15,8 @@ public class Renderer: NSObject, MTKViewDelegate {
     let device: MTLDevice
     let depthState: MTLDepthStencilState
     let vertexPipelineState: MTLRenderPipelineState
-    let pipelineState: MTLRenderPipelineState
+    let groundPipelineState: MTLRenderPipelineState
+    let model3DPipelineState: MTLRenderPipelineState
     let commandQueue: MTLCommandQueue
     var lastTime: Double = CFAbsoluteTimeGetCurrent()
     let wireframe = false
@@ -58,7 +59,10 @@ public class Renderer: NSObject, MTKViewDelegate {
             self.vertexPipelineState = pipelineState
             
             pipelineStateDescriptor.vertexDescriptor = scene.groundVertexDescriptor
-            self.pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+            self.groundPipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+            
+            pipelineStateDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
+            self.model3DPipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
             
             guard let commandQueue = device.makeCommandQueue() else {
                 fatalError("cannot make command queue")
@@ -86,7 +90,6 @@ public class Renderer: NSObject, MTKViewDelegate {
         renderEncoder.label = "MyRenderEndcoder"
         
         renderEncoder.setDepthStencilState(depthState)
-        renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setFrontFacing(.counterClockwise)
         renderEncoder.setCullMode(.back)
        
@@ -99,7 +102,7 @@ public class Renderer: NSObject, MTKViewDelegate {
             renderEncoder.setTriangleFillMode(.lines)
         }
         
-        scene.render(renderEncoder: renderEncoder, device: device, modelPipelineState: pipelineState, vertexPipelineState: vertexPipelineState)
+        scene.render(renderEncoder: renderEncoder, device: device, groundPipelineState: groundPipelineState, vertexPipelineState: vertexPipelineState, model3DPipelineState: model3DPipelineState)
         
         renderEncoder.endEncoding()
         if let currentDrawable = view.currentDrawable {

@@ -18,7 +18,7 @@ struct Plane: Model {
     var scale: Float = 20
     
     init(diffuse: MTLTexture, specular: MTLTexture, device: MTLDevice) {
-        self.type = .ModelIO
+        self.type = .Ground
         self.diffuse = diffuse
         self.specular = specular
         let allocator = MTKMeshBufferAllocator(device: device)

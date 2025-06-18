@@ -8,7 +8,7 @@
 import MetalKit
 
 enum ModelType {
-    case ModelIO, Vertex
+    case ModelIO, Vertex, Ground
 }
 
 protocol Model {
