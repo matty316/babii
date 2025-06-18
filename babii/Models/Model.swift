@@ -79,6 +79,7 @@ struct Model3d: Model {
     let mesh: MTKMesh
     
     func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice) {
+        
         renderEncoder.setVertexBuffer(mesh.vertexBuffers[0].buffer, offset: 0, index: 0)
         for submesh in mesh.submeshes {
             renderEncoder.drawIndexedPrimitives(

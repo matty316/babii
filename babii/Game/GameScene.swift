@@ -30,6 +30,9 @@ struct GameScene {
         } else {
             self.groundVertexDescriptor = nil
         }
+        
+        let mushroom = Model3d(device: device, assetName: "mushroom", position: [0, 0, 0], rotationAngle: 0, rotation: [0, 0, 0], scale: 1)
+        models.append(mushroom)
     }
     
     mutating func update(size: CGSize) {
