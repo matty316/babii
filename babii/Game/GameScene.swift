@@ -33,7 +33,7 @@ struct GameScene {
         }
         
         if let diffuse = textureLoader.loadTexture(name: "mushroom", device: device) {
-            let mushroom = Model3d(device: device, assetName: "mushroom", position: [0, 0, 0], rotationAngle: 0, rotation: [0, 0, 0], scale: 1, texture: diffuse)
+            let mushroom = Model3d(device: device, assetName: "mushroom", position: [2, -1, 2], rotationAngle: 0, rotation: [0, 0, 0], scale: 0.5, texture: diffuse)
             models.append(mushroom)
         }
     }
