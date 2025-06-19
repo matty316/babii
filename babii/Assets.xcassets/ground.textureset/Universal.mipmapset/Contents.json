@@ -1,0 +1,12 @@
+{
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "levels" : [
+    {
+      "filename" : "forrest_ground_01_diff_4k.jpg",
+      "mipmap-level" : "base"
+    }
+  ]
+}
