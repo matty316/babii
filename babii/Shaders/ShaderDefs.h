@@ -30,10 +30,4 @@ struct Fragment {
     float4 worldPosition;
 };
 
-struct Material {
-    texture2d<float> diffuse;
-    texture2d<float> specular;
-    float shininess;
-};
-
 #endif

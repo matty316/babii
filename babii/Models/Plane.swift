@@ -31,10 +31,10 @@ struct Plane: Model {
         self.mesh = try! MTKMesh(mesh: mdlMesh, device: device)
     }
     
-    func render(renderEncoder: any MTLRenderCommandEncoder, device: any MTLDevice) {
+    func render(renderEncoder: any MTLRenderCommandEncoder, device: any MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int) {
         renderEncoder.setFragmentTexture(diffuse, index: 0)
         renderEncoder.setFragmentTexture(specular, index: 1)
-        var params = Params(hasSpecular: 1)
+        var params = Params(hasSpecular: 1, lightCount: 0, cameraPosition: cameraPosition)
         renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
         for (i, buffer) in mesh.vertexBuffers.enumerated() {
             renderEncoder.setVertexBuffer(buffer.buffer, offset: 0, index: i)

@@ -66,13 +66,13 @@ struct Cube: Model {
         self.type = .Vertex
     }
     
-    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice) {
+    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int) {
         let buffer = device.makeBuffer(bytes: vertices, length: MemoryLayout<Vertex>.stride * vertices.count)
         renderEncoder.setVertexBuffer(buffer, offset: 0, index: 0)
         
         renderEncoder.setFragmentTexture(diffuse, index: 0)
         renderEncoder.setFragmentTexture(specular, index: 1)
-        var params = Params(hasSpecular: 1)
+        var params = Params(hasSpecular: 1, lightCount: 0, cameraPosition: cameraPosition)
         renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
         
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertices.count)

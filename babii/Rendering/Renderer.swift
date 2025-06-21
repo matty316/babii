@@ -58,7 +58,7 @@ public class Renderer: NSObject, MTKViewDelegate {
             
             self.vertexPipelineState = pipelineState
             
-            pipelineStateDescriptor.vertexDescriptor = scene.groundVertexDescriptor
+//            pipelineStateDescriptor.vertexDescriptor = scene.groundVertexDescriptor
             self.groundPipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
             
             pipelineStateDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()

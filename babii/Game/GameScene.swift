@@ -15,27 +15,10 @@ struct GameScene {
     var models = [Model]()
     var lastMouseDelta = Controls.Point()
     var textureLoader = TextureLoader()
-    let groundVertexDescriptor: MTLVertexDescriptor?
     
     init(device: MTLDevice) {
-        if let diffuse = textureLoader.loadTexture(name: "container", device: device),
-           let specular  = textureLoader.loadTexture(name: "container_spec", device: device) {
-            let cube = Cube(diffuse: diffuse, specular: specular)
-            models.append(cube)
-        }
-        if let diffuse = textureLoader.loadTexture(name: "ground", device: device),
-           let specular = textureLoader.loadTexture(name: "ground_spec", device: device) {
-            let ground = Plane(diffuse: diffuse, specular: specular, device: device)
-            models.append(ground)
-            self.groundVertexDescriptor = MTKMetalVertexDescriptorFromModelIO(ground.mesh.vertexDescriptor)
-        } else {
-            self.groundVertexDescriptor = nil
-        }
-        
-        if let diffuse = textureLoader.loadTexture(name: "mushroom", device: device) {
-            let mushroom = Model3d(device: device, assetName: "mushroom", position: [2, -1, 2], rotationAngle: 0, rotation: [0, 0, 0], scale: 0.5, texture: diffuse)
-            models.append(mushroom)
-        }
+        let pancakes = Model3d(device: device, assetName: "my-sphere", position: [0,0,0], rotationAngle: 0, rotation: [0,0,0], scale: 1)
+        models.append(pancakes)
     }
     
     mutating func update(size: CGSize) {
@@ -68,41 +51,6 @@ struct GameScene {
         var viewPos = cam.position
         renderEncoder.setFragmentBytes(&viewPos, length: MemoryLayout<SIMD3<Float>>.stride, index: 2)
         
-        let ambient: Float = 0.05
-        var diffuse: Float = 0.4
-        var specular: Float = 0.5
-        var dirLight = DirectionalLight(
-            direction: [-0.2, -1.0, -0.3],
-            ambient: [ambient, ambient, ambient],
-            diffuse: [diffuse, diffuse, diffuse],
-            specular: [specular, specular, specular]
-        )
-        
-        diffuse = 0.8
-        specular = 1.0
-        let pointLightPositions: [SIMD3<Float>] = [
-            [0.7, 0.2, 2.0],
-            [2.3, -3.3, -4.0],
-            [-4.0, 2.0, -12.0],
-            [0.0, 0.0, -3.0],
-        ]
-        
-        var pointLights = [PointLight]()
-        for position in pointLightPositions {
-            let point = PointLight(
-                position: position,
-                attenuation: [1.0, 0.09, 0.032],
-                ambient: [ambient, ambient, ambient],
-                diffuse: [diffuse, diffuse, diffuse],
-                specular: [specular, specular, specular]
-            )
-            pointLights.append(point)
-        }
-        
-        renderEncoder.setFragmentBytes(&dirLight, length: MemoryLayout<DirectionalLight>.stride, index: 3)
-        renderEncoder.setFragmentBytes(&pointLights, length: MemoryLayout<PointLight>.stride * pointLights.count, index: 4)
-        var count = UInt32(pointLights.count)
-        renderEncoder.setFragmentBytes(&count, length: MemoryLayout<UInt32>.stride, index: 5)
         for model in models {
             var transformation = cam.transformation(model: model.modelMatrix)
             renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 11)
@@ -114,7 +62,7 @@ struct GameScene {
             case .Ground:
                 renderEncoder.setRenderPipelineState(groundPipelineState)
             }
-            model.render(renderEncoder: renderEncoder, device: device)
+            model.render(renderEncoder: renderEncoder, device: device, cameraPosition: cam.position, lightCount: 0)
         }
     }
 }
