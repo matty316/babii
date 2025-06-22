@@ -71,20 +71,28 @@ struct Model3d: Model {
     var rotationAngle: Float
     var rotation: SIMD3<Float>
     var scale: Float
-    let mesh: Mesh
+    var meshes: [Mesh] = []
         
     func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int) {
         var params = Params(hasSpecular: 0, lightCount: UInt32(lightCount), cameraPosition: cameraPosition)
         renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
-        renderEncoder.setVertexBuffer(mesh.mtkMesh.vertexBuffers[0].buffer, offset: 0, index: 0)
-        for submesh in mesh.submeshes {
-            renderEncoder.drawIndexedPrimitives(
-                type: .triangle,
-                indexCount: submesh.indexCount,
-                indexType: submesh.indexType,
-                indexBuffer: submesh.indexBuffer,
-                indexBufferOffset: submesh.indexBufferOffset
-            )
+        
+        for mesh in meshes {
+            for (i, vertexBuffer) in mesh.mtkMesh.vertexBuffers.enumerated() {
+                renderEncoder.setVertexBuffer(vertexBuffer.buffer, offset: 0, index: i)
+            }
+            for submesh in mesh.submeshes {
+                renderEncoder.setFragmentTexture(submesh.baseColor, index: 0)
+                var material = submesh.material
+                renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: 7)
+                renderEncoder.drawIndexedPrimitives(
+                    type: .triangle,
+                    indexCount: submesh.indexCount,
+                    indexType: submesh.indexType,
+                    indexBuffer: submesh.indexBuffer,
+                    indexBufferOffset: submesh.indexBufferOffset
+                )
+            }
         }
     }
     
@@ -101,9 +109,14 @@ struct Model3d: Model {
         }
         
         let asset = MDLAsset(url: assetUrl, vertexDescriptor: MTLVertexDescriptor.mdlVertexDescriptor(), bufferAllocator: allocator)
-        let mdlMesh = asset.childObjects(of: MDLMesh.self).first as! MDLMesh
-        let mtkMesh = try! MTKMesh(mesh: mdlMesh, device: device)
-        self.mesh = Mesh(mtkMesh: mtkMesh, mdlMesh: mdlMesh)
+        asset.loadTextures()
+        let mdlMeshes = asset.childObjects(of: MDLMesh.self) as? [MDLMesh] ?? []
+        
+        for mdlMesh in mdlMeshes {
+            let mtkMesh = try! MTKMesh(mesh: mdlMesh, device: device)
+            self.meshes.append(Mesh(mtkMesh: mtkMesh, mdlMesh: mdlMesh, device: device))
+        }
+        
     }
 }
 
@@ -112,11 +125,11 @@ struct Mesh {
     let mdlMesh: MDLMesh
     var submeshes = [Submesh]()
     
-    init(mtkMesh: MTKMesh, mdlMesh: MDLMesh) {
+    init(mtkMesh: MTKMesh, mdlMesh: MDLMesh, device: MTLDevice) {
         self.mtkMesh = mtkMesh
         self.mdlMesh = mdlMesh
         submeshes = zip(mtkMesh.submeshes, mdlMesh.submeshes!).map { mesh in
-            Submesh(mtkMesh: mesh.0, mdlMesh: mesh.1 as! MDLSubmesh)
+            Submesh(mtkSubmesh: mesh.0, mdlSubmesh: mesh.1 as! MDLSubmesh, device: device)
         }
     }
 }
@@ -127,29 +140,50 @@ struct Submesh {
     let indexBuffer: MTLBuffer
     let indexBufferOffset: Int
     
+    let material: Material
     let baseColor: MTLTexture?
     
-    init(mtkSubmesh: MTKSubmesh, mdlSubmesh: MDLSubmesh) {
+    init(mtkSubmesh: MTKSubmesh, mdlSubmesh: MDLSubmesh, device: MTLDevice) {
         self.indexType = mtkSubmesh.indexType
         self.indexCount = mtkSubmesh.indexCount
         self.indexBuffer = mtkSubmesh.indexBuffer.buffer
         self.indexBufferOffset = mtkSubmesh.indexBuffer.offset
-        let material = mdlSubmesh.material!
-        self.baseColor = material.texture(type: .baseColor)
+        self.material = Material(material: mdlSubmesh.material)
+        self.baseColor = mdlSubmesh.material?.texture(type: .baseColor, device: device)
     }
 }
 
 private extension MDLMaterial {
-  func texture(type semantic: MDLMaterialSemantic) -> MTLTexture? {
-    if let property = property(with: semantic),
-       property.type == .texture,
-       let mdlTexture = property.textureSamplerValue?.texture {
-      return TextureController.loadTexture(
-        texture: mdlTexture,
-        name: property.textureName)
-    }
-    return nil
+    func texture(type semantic: MDLMaterialSemantic, device: MTLDevice) -> MTLTexture? {
+        if let property = property(with: semantic),
+           property.type == .texture,
+           let mdlTexture = property.textureSamplerValue?.texture {
+            return TextureLoader.shared.loadTexture(
+                texture: mdlTexture,
+                name: property.stringValue ?? UUID().uuidString,
+                device: device)
+        }
+        return nil
   }
+}
+
+private extension Material {
+    init(material: MDLMaterial?) {
+        self.init()
+        if let baseColor = material?.property(with: .baseColor),
+          baseColor.type == .float3 {
+          self.baseColor = baseColor.float3Value
+        }
+        if let roughness = material?.property(with: .roughness),
+          roughness.type == .float {
+          self.roughness = roughness.floatValue
+        }
+        if let metallic = material?.property(with: .metallic),
+           metallic.type == .float {
+          self.metallic = metallic.floatValue
+        }
+        self.ambientOcclusion = 1
+    }
 }
 
 

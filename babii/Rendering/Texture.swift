@@ -7,10 +7,11 @@
 
 import MetalKit
 
-struct TextureLoader {
+class TextureLoader {
+    static let shared = TextureLoader()
     var textures = [String: MTLTexture]()
     
-    mutating func loadTexture(name: String, device: MTLDevice) -> MTLTexture? {
+    func loadTexture(name: String, device: MTLDevice) -> MTLTexture? {
         if let texture = textures[name] {
             return texture
         }
@@ -23,7 +24,7 @@ struct TextureLoader {
         return texture
     }
     
-    mutating func loadTexture(texture: MDLTexture, name: String, device: MTLDevice) -> MTLTexture? {
+    func loadTexture(texture: MDLTexture, name: String, device: MTLDevice) -> MTLTexture? {
       if let texture = textures[name] {
         return texture
       }

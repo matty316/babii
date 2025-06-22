@@ -14,10 +14,9 @@ struct GameScene {
     var controls = Controls()
     var models = [Model]()
     var lastMouseDelta = Controls.Point()
-    var textureLoader = TextureLoader()
-    
+
     init(device: MTLDevice) {
-        let pancakes = Model3d(device: device, assetName: "my-sphere", position: [0,0,0], rotationAngle: 0, rotation: [0,0,0], scale: 1)
+        let pancakes = Model3d(device: device, assetName: "final-sphere", position: [0,0,0], rotationAngle: 0, rotation: [0,0,0], scale: 1)
         models.append(pancakes)
     }
     

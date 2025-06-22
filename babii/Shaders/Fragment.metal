@@ -15,15 +15,21 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
                                texture2d<float> baseColor [[texture(0)]],
                                constant float3 &viewPos [[buffer(2)]],
                                constant Light &lights [[buffer(3)]],
-                               constant uint &numOfPointLights [[buffer(5)]],
-                               constant Params &params [[buffer(6)]]) {
+                               constant Params &params [[buffer(6)]],
+                               constant Material &_material [[buffer(7)]]) {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear, address::repeat);
-
+    
+    Material material = _material;
+    
     float3 norm = normalize(in.normal);
     float3 fragPos = in.worldPosition.xyz;
     float3 viewDir = normalize(viewPos - fragPos);
     
-    return float4(1, 0, 0, 1);
+    if (!is_null_texture(baseColor)) {
+        material.baseColor = baseColor.sample(textureSampler, in.uv).rgb;
+    }
+    
+    return float4(material.baseColor, 1);
 }
 
 fragment float4 fragmentSolid(Fragment in [[stage_in]]) {
