@@ -83,6 +83,7 @@ struct Model3d: Model {
             }
             for submesh in mesh.submeshes {
                 renderEncoder.setFragmentTexture(submesh.baseColor, index: 0)
+                renderEncoder.setFragmentTexture(submesh.roughness, index: 1)
                 var material = submesh.material
                 renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: 7)
                 renderEncoder.drawIndexedPrimitives(
@@ -142,6 +143,7 @@ struct Submesh {
     
     let material: Material
     let baseColor: MTLTexture?
+    let roughness: MTLTexture?
     
     init(mtkSubmesh: MTKSubmesh, mdlSubmesh: MDLSubmesh, device: MTLDevice) {
         self.indexType = mtkSubmesh.indexType
@@ -150,6 +152,7 @@ struct Submesh {
         self.indexBufferOffset = mtkSubmesh.indexBuffer.offset
         self.material = Material(material: mdlSubmesh.material)
         self.baseColor = mdlSubmesh.material?.texture(type: .baseColor, device: device)
+        self.roughness = mdlSubmesh.material?.texture(type: .roughness, device: device)
     }
 }
 

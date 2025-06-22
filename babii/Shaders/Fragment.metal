@@ -11,10 +11,14 @@ using namespace metal;
 #import "ShaderDefs.h"
 #import "Common.h"
 
+float3 computeSpecular(constant Light *lights, constant Params &params, Material material, float3 normal);
+float3 computeDiffuse(constant Light *lights, constant Params &params, Material material, float3 normal);
+
 fragment float4 fragmentShader(Fragment in [[stage_in]],
                                texture2d<float> baseColor [[texture(0)]],
+                               texture2d<float> roughness [[texture(1)]],
                                constant float3 &viewPos [[buffer(2)]],
-                               constant Light &lights [[buffer(3)]],
+                               constant Light *lights [[buffer(3)]],
                                constant Params &params [[buffer(6)]],
                                constant Material &_material [[buffer(7)]]) {
     constexpr sampler textureSampler (mag_filter::linear, min_filter::linear, address::repeat);
@@ -29,7 +33,17 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
         material.baseColor = baseColor.sample(textureSampler, in.uv).rgb;
     }
     
-    return float4(material.baseColor, 1);
+    if (!is_null_texture(roughness)) {
+        material.roughness = roughness.sample(textureSampler, in.uv).r;
+    }
+    
+    float3 diffuseColor =
+      computeDiffuse(lights, params, material, norm);
+
+    float3 specularColor =
+      computeSpecular(lights, params, material, norm);
+    
+    return float4(diffuseColor + specularColor, 1);
 }
 
 fragment float4 fragmentSolid(Fragment in [[stage_in]]) {

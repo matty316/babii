@@ -50,6 +50,10 @@ struct GameScene {
         var viewPos = cam.position
         renderEncoder.setFragmentBytes(&viewPos, length: MemoryLayout<SIMD3<Float>>.stride, index: 2)
         
+        var lights = SceneLighting().lights
+        
+        renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: 3)
+        
         for model in models {
             var transformation = cam.transformation(model: model.modelMatrix)
             renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 11)
@@ -61,7 +65,39 @@ struct GameScene {
             case .Ground:
                 renderEncoder.setRenderPipelineState(groundPipelineState)
             }
-            model.render(renderEncoder: renderEncoder, device: device, cameraPosition: cam.position, lightCount: 0)
+            model.render(renderEncoder: renderEncoder, device: device, cameraPosition: cam.position, lightCount: lights.count)
         }
     }
+}
+
+struct SceneLighting {
+  static func buildDefaultLight() -> Light {
+    var light = Light()
+    light.position = [0, 0, 0]
+    light.color = SIMD3<Float>(repeating: 1.0)
+    light.specularColor = SIMD3<Float>(repeating: 0.6)
+    light.attenuation = [1, 0, 0]
+    light.type = Sun
+    return light
+  }
+
+  let sunlight: Light = {
+    var light = Self.buildDefaultLight()
+    light.position = [1.8, 2.2, -2.9]
+    light.color = SIMD3<Float>(repeating: 1)
+    return light
+  }()
+
+  let fillLight: Light = {
+    var light = Self.buildDefaultLight()
+    light.position = [-5, 1, 3]
+    light.color = SIMD3<Float>(repeating: 0.6)
+    return light
+  }()
+
+  var lights: [Light] = []
+
+  init() {
+    lights = [sunlight, fillLight]
+  }
 }
