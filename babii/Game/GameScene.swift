@@ -10,13 +10,13 @@ import GameController
 import MetalKit
 
 struct GameScene {
-    var cam = Camera()
+    var cam = Camera(cameraType: .fly)
     var controls = Controls()
     var models = [Model]()
     var lastMouseDelta = Controls.Point()
 
     init(device: MTLDevice) {
-        let pancakes = Model3d(device: device, assetName: "final-sphere", position: [0,0,0], rotationAngle: 0, rotation: [0,0,0], scale: 1)
+        let pancakes = Model3d(device: device, assetName: "pancakes_photogrammetry", position: [0,0,0], rotationAngle: 0, rotation: [0,0,0], scale: 0.05)
         models.append(pancakes)
     }
     

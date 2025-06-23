@@ -15,9 +15,11 @@ float3 computeSpecular(constant Light *lights, constant Params &params, Material
 float3 computeDiffuse(constant Light *lights, constant Params &params, Material material, float3 normal);
 
 fragment float4 fragmentShader(Fragment in [[stage_in]],
-                               texture2d<float> baseColor [[texture(0)]],
-                               texture2d<float> roughness [[texture(1)]],
+                               texture2d<float> baseColorTexture [[texture(0)]],
+                               texture2d<float> roughnessTexture [[texture(1)]],
                                texture2d<float> normalTexture [[texture(2)]],
+                               texture2d<float> aoTexture [[texture(3)]],
+                               texture2d<float> metallicTexture [[texture(4)]],
                                constant float3 &viewPos [[buffer(2)]],
                                constant Light *lights [[buffer(3)]],
                                constant Params &params [[buffer(6)]],
@@ -28,12 +30,20 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
     
 
     
-    if (!is_null_texture(baseColor)) {
-        material.baseColor = baseColor.sample(textureSampler, in.uv).rgb;
+    if (!is_null_texture(baseColorTexture)) {
+        material.baseColor = baseColorTexture.sample(textureSampler, in.uv).rgb;
     }
     
-    if (!is_null_texture(roughness)) {
-        material.roughness = roughness.sample(textureSampler, in.uv).r;
+    if (!is_null_texture(roughnessTexture)) {
+        material.roughness = roughnessTexture.sample(textureSampler, in.uv).r;
+    }
+    
+    if (!is_null_texture(aoTexture)) {
+        material.ambientOcclusion = aoTexture.sample(textureSampler, in.uv).r;
+    }
+    
+    if (!is_null_texture(metallicTexture)) {
+        material.metallic = metallicTexture.sample(textureSampler, in.uv).r;
     }
     
     float3 normal;

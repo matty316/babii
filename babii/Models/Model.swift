@@ -105,6 +105,8 @@ struct Model3d: Model {
                 renderEncoder.setFragmentTexture(submesh.baseColor, index: 0)
                 renderEncoder.setFragmentTexture(submesh.roughness, index: 1)
                 renderEncoder.setFragmentTexture(submesh.normal, index: 2)
+                renderEncoder.setFragmentTexture(submesh.ambientOcclussion, index: 3)
+                renderEncoder.setFragmentTexture(submesh.metallic, index: 4)
                 var material = submesh.material
                 renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: 7)
                 renderEncoder.drawIndexedPrimitives(
@@ -166,6 +168,8 @@ struct Submesh {
     let baseColor: MTLTexture?
     let roughness: MTLTexture?
     let normal: MTLTexture?
+    let ambientOcclussion: MTLTexture?
+    let metallic: MTLTexture?
     
     init(mtkSubmesh: MTKSubmesh, mdlSubmesh: MDLSubmesh, device: MTLDevice) {
         self.indexType = mtkSubmesh.indexType
@@ -176,6 +180,8 @@ struct Submesh {
         self.baseColor = mdlSubmesh.material?.texture(type: .baseColor, device: device)
         self.roughness = mdlSubmesh.material?.texture(type: .roughness, device: device)
         self.normal = mdlSubmesh.material?.texture(type: .tangentSpaceNormal, device: device)
+        self.ambientOcclussion = mdlSubmesh.material?.texture(type: .ambientOcclusion, device: device)
+        self.metallic = mdlSubmesh.material?.texture(type: .metallic, device: device)
     }
 }
 
