@@ -12,15 +12,11 @@
 using namespace metal;
 
 struct VertexIn {
-  float4 position [[attribute(0)]];
-  float3 normal [[attribute(1)]];
-  float2 uv [[attribute(2)]];
-};
-
-struct Transformation {
-    matrix_float4x4 model;
-    matrix_float4x4 view;
-    matrix_float4x4 projection;
+    float4 position [[attribute(0)]];
+    float3 normal [[attribute(1)]];
+    float2 uv [[attribute(2)]];
+    float3 tangent [[attribute(3)]];
+    float3 bitangent [[attribute(4)]];
 };
 
 struct Fragment {
@@ -28,6 +24,9 @@ struct Fragment {
     float3 normal;
     float2 uv;
     float4 worldPosition;
+    float3 worldNormal;
+    float3 worldTangent;
+    float3 worldBitangent;
 };
 
 #endif

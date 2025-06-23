@@ -42,7 +42,7 @@ public struct Camera {
     }
     
     func transformation(model: matrix_float4x4) -> Transformation {
-        Transformation(model: model, view: view, projection: projection)
+        Transformation(model: model, view: view, projection: projection, normal: model.upperLeft)
     }
     
     init(cameraType: CameraType = .fps) {

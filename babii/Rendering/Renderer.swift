@@ -14,12 +14,10 @@ public typealias ProcessInputClosure = ((TimeInterval, [GCKeyCode: Bool], SIMD2<
 public class Renderer: NSObject, MTKViewDelegate {
     let device: MTLDevice
     let depthState: MTLDepthStencilState
-    let vertexPipelineState: MTLRenderPipelineState
-    let groundPipelineState: MTLRenderPipelineState
-    let model3DPipelineState: MTLRenderPipelineState
+    let pipelineState: MTLRenderPipelineState
     let commandQueue: MTLCommandQueue
     var lastTime: Double = CFAbsoluteTimeGetCurrent()
-    let wireframe = false
+    let wireframe = true
     var scene: GameScene
     
     override public init() {
@@ -52,17 +50,9 @@ public class Renderer: NSObject, MTKViewDelegate {
             pipelineStateDescriptor.fragmentFunction = fragmentFunc
             pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
             pipelineStateDescriptor.depthAttachmentPixelFormat = .depth32Float
-            pipelineStateDescriptor.vertexDescriptor = Vertex.vertexDescriptor()
+            pipelineStateDescriptor.vertexDescriptor = .vertexDescriptor()
             
-            let pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
-            
-            self.vertexPipelineState = pipelineState
-            
-//            pipelineStateDescriptor.vertexDescriptor = scene.groundVertexDescriptor
-            self.groundPipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
-            
-            pipelineStateDescriptor.vertexDescriptor = MTLVertexDescriptor.vertexDescriptor()
-            self.model3DPipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+            self.pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
             
             guard let commandQueue = device.makeCommandQueue() else {
                 fatalError("cannot make command queue")
@@ -92,6 +82,7 @@ public class Renderer: NSObject, MTKViewDelegate {
         renderEncoder.setDepthStencilState(depthState)
         renderEncoder.setFrontFacing(.counterClockwise)
         renderEncoder.setCullMode(.back)
+        renderEncoder.setRenderPipelineState(pipelineState)
        
         let currentTime = CFAbsoluteTimeGetCurrent()
         let deltaTime = Float(currentTime - lastTime)
@@ -102,7 +93,7 @@ public class Renderer: NSObject, MTKViewDelegate {
             renderEncoder.setTriangleFillMode(.lines)
         }
         
-        scene.render(renderEncoder: renderEncoder, device: device, groundPipelineState: groundPipelineState, vertexPipelineState: vertexPipelineState, model3DPipelineState: model3DPipelineState)
+        scene.render(renderEncoder: renderEncoder, device: device)
         
         renderEncoder.endEncoding()
         if let currentDrawable = view.currentDrawable {

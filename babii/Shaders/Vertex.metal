@@ -8,6 +8,7 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
+#import "Common.h"
 #import "ShaderDefs.h"
 
 vertex Fragment
@@ -19,6 +20,9 @@ vertexShader(VertexIn in [[stage_in]],
     out.normal = in.normal;
     out.uv = in.uv;
     out.worldPosition = transformation->model * in.position;
+    out.worldNormal = transformation->normal * in.normal;
+    out.worldTangent = transformation->normal * in.tangent;
+    out.worldBitangent = transformation->normal * in.bitangent;
     
     return out;
 }

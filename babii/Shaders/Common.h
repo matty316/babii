@@ -23,6 +23,13 @@ struct Material {
     float ambientOcclusion;
 };
 
+struct Transformation {
+    matrix_float4x4 model;
+    matrix_float4x4 view;
+    matrix_float4x4 projection;
+    matrix_float3x3 normal;
+};
+
 typedef enum {
     unused = 0,
     Sun = 1,

@@ -32,9 +32,13 @@ extension Model {
 
 extension MTLVertexDescriptor {
     static func vertexDescriptor() -> MTLVertexDescriptor {
-        return MTKMetalVertexDescriptorFromModelIO(Self.mdlVertexDescriptor())!
+        return MTKMetalVertexDescriptorFromModelIO(.vertexDescriptor())!
     }
-    static func mdlVertexDescriptor() -> MDLVertexDescriptor {
+    
+}
+
+extension MDLVertexDescriptor {
+    static func vertexDescriptor() -> MDLVertexDescriptor {
         let vertexDescriptor = MDLVertexDescriptor()
         var offset = 0
         vertexDescriptor.attributes[0] = MDLVertexAttribute(
@@ -57,6 +61,22 @@ extension MTLVertexDescriptor {
             offset: offset,
             bufferIndex: 0)
         offset += MemoryLayout<SIMD2<Float>>.stride
+        
+        vertexDescriptor.attributes[3] = MDLVertexAttribute(
+            name: MDLVertexAttributeTangent,
+            format: .float3,
+            offset: 0,
+            bufferIndex: 0
+        )
+        offset += MemoryLayout<SIMD3<Float>>.stride
+        
+        vertexDescriptor.attributes[4] = MDLVertexAttribute(
+            name: MDLVertexAttributeBitangent,
+            format: .float3,
+            offset: 0,
+            bufferIndex: 0
+        )
+        offset += MemoryLayout<SIMD3<Float>>.stride
         
         vertexDescriptor.layouts[0]
         = MDLVertexBufferLayout(stride: offset)
@@ -109,15 +129,15 @@ struct Model3d: Model {
             fatalError("asset not in main bundle")
         }
         
-        let asset = MDLAsset(url: assetUrl, vertexDescriptor: MTLVertexDescriptor.mdlVertexDescriptor(), bufferAllocator: allocator)
+        let asset = MDLAsset(url: assetUrl, vertexDescriptor: .vertexDescriptor(), bufferAllocator: allocator)
         asset.loadTextures()
         let mdlMeshes = asset.childObjects(of: MDLMesh.self) as? [MDLMesh] ?? []
         
         for mdlMesh in mdlMeshes {
+            mdlMesh.addTangentBasis(forTextureCoordinateAttributeNamed: MDLVertexAttributeTextureCoordinate, tangentAttributeNamed: MDLVertexAttributeTangent, bitangentAttributeNamed: MDLVertexAttributeBitangent)
             let mtkMesh = try! MTKMesh(mesh: mdlMesh, device: device)
             self.meshes.append(Mesh(mtkMesh: mtkMesh, mdlMesh: mdlMesh, device: device))
         }
-        
     }
 }
 

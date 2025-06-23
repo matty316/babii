@@ -37,11 +37,9 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
         material.roughness = roughness.sample(textureSampler, in.uv).r;
     }
     
-    float3 diffuseColor =
-      computeDiffuse(lights, params, material, norm);
+    float3 diffuseColor = computeDiffuse(lights, params, material, norm);
 
-    float3 specularColor =
-      computeSpecular(lights, params, material, norm);
+    float3 specularColor = computeSpecular(lights, params, material, norm);
     
     return float4(diffuseColor + specularColor, 1);
 }
