@@ -11,23 +11,43 @@
 #import <simd/simd.h>
 
 struct Params {
-    int hasSpecular;
+    uint8_t hasSpecular;
+    uint32_t lightCount;
+    vector_float3 cameraPosition;
 };
 
-struct DirectionalLight {
-    vector_float3 direction;
-  
-    vector_float3 ambient;
-    vector_float3 diffuse;
-    vector_float3 specular;
+struct Material {
+    vector_float3 baseColor;
+    float roughness;
+    float metallic;
+    float ambientOcclusion;
 };
 
-struct PointLight {
+struct Transformation {
+    matrix_float4x4 model;
+    matrix_float4x4 view;
+    matrix_float4x4 projection;
+    matrix_float3x3 normal;
+};
+
+typedef enum {
+    unused = 0,
+    Sun = 1,
+    Spot = 2,
+    Point = 3,
+    Ambient = 4
+} LightType;
+
+struct Light {
+    LightType type;
     vector_float3 position;
+    vector_float3 color;
+    vector_float3 specularColor;
+    float radius;
     vector_float3 attenuation;
-    vector_float3 ambient;
-    vector_float3 diffuse;
-    vector_float3 specular;
+    float coneAngle;
+    vector_float3 coneDirection;
+    float coneAttenuation;
 };
 
 #endif /* Common_h */

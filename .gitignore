@@ -84,3 +84,4 @@ fastlane/*.env
 
 iOSInjectionProject/
 
+**/UserInterfaceState.xcuserstate

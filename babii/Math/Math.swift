@@ -69,3 +69,31 @@ enum Math {
                                       [0, 0, 0,        1]])
     }
 }
+
+extension float4x4 {
+    var upperLeft: float3x3 {
+        let x = columns.0.xyz
+        let y = columns.1.xyz
+        let z = columns.2.xyz
+        return float3x3(columns: (x, y, z))
+    }
+}
+
+extension SIMD4<Float> {
+  var xyz: SIMD3<Float> {
+    get {
+        SIMD3<Float>(x, y, z)
+    }
+    set {
+      x = newValue.x
+      y = newValue.y
+      z = newValue.z
+    }
+  }
+
+  // convert from double4
+  init(_ d: SIMD4<Double>) {
+    self.init()
+    self = [Float(d.x), Float(d.y), Float(d.z), Float(d.w)]
+  }
+}

@@ -7,10 +7,11 @@
 
 import MetalKit
 
-struct TextureLoader {
+class TextureLoader {
+    static let shared = TextureLoader()
     var textures = [String: MTLTexture]()
     
-    mutating func loadTexture(name: String, device: MTLDevice) -> MTLTexture? {
+    func loadTexture(name: String, device: MTLDevice) -> MTLTexture? {
         if let texture = textures[name] {
             return texture
         }
@@ -21,5 +22,21 @@ struct TextureLoader {
             textures[name] = texture
         }
         return texture
+    }
+    
+    func loadTexture(texture: MDLTexture, name: String, device: MTLDevice) -> MTLTexture? {
+      if let texture = textures[name] {
+        return texture
+      }
+      let textureLoader = MTKTextureLoader(device: device)
+      let textureLoaderOptions: [MTKTextureLoader.Option: Any] =
+        [.origin: MTKTextureLoader.Origin.bottomLeft,
+         .generateMipmaps: true]
+      let texture = try? textureLoader.newTexture(
+        texture: texture,
+        options: textureLoaderOptions)
+      print("loaded texture from USD file", name)
+      textures[name] = texture
+      return texture
     }
 }
