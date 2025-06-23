@@ -84,4 +84,4 @@ fastlane/*.env
 
 iOSInjectionProject/
 
-babii.xcodeproj/project.workspace/xcuserdata/*
+babii.xcodeproj/project.workspace/xcuserdata/**
