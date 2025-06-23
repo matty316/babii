@@ -17,6 +17,7 @@ float3 computeDiffuse(constant Light *lights, constant Params &params, Material 
 fragment float4 fragmentShader(Fragment in [[stage_in]],
                                texture2d<float> baseColor [[texture(0)]],
                                texture2d<float> roughness [[texture(1)]],
+                               texture2d<float> normalTexture [[texture(2)]],
                                constant float3 &viewPos [[buffer(2)]],
                                constant Light *lights [[buffer(3)]],
                                constant Params &params [[buffer(6)]],
@@ -25,9 +26,7 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
     
     Material material = _material;
     
-    float3 norm = normalize(in.normal);
-    float3 fragPos = in.worldPosition.xyz;
-    float3 viewDir = normalize(viewPos - fragPos);
+
     
     if (!is_null_texture(baseColor)) {
         material.baseColor = baseColor.sample(textureSampler, in.uv).rgb;
@@ -37,9 +36,24 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
         material.roughness = roughness.sample(textureSampler, in.uv).r;
     }
     
-    float3 diffuseColor = computeDiffuse(lights, params, material, norm);
+    float3 normal;
+    if (is_null_texture(normalTexture)) {
+      normal = in.worldNormal;
+    } else {
+      normal = normalTexture.sample(
+      textureSampler,
+      in.uv).rgb;
+      normal = normal * 2 - 1;
+      normal = float3x3(
+        in.worldTangent,
+        in.worldBitangent,
+        in.worldNormal) * normal;
+    }
+    normal = normalize(normal);
+    
+    float3 diffuseColor = computeDiffuse(lights, params, material, normal);
 
-    float3 specularColor = computeSpecular(lights, params, material, norm);
+    float3 specularColor = computeSpecular(lights, params, material, normal);
     
     return float4(diffuseColor + specularColor, 1);
 }
