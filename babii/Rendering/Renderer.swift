@@ -17,7 +17,7 @@ public class Renderer: NSObject, MTKViewDelegate {
     let pipelineState: MTLRenderPipelineState
     let commandQueue: MTLCommandQueue
     var lastTime: Double = CFAbsoluteTimeGetCurrent()
-    let wireframe = true
+    let wireframe = false
     var scene: GameScene
     
     override public init() {

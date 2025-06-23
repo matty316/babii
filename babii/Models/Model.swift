@@ -61,25 +61,25 @@ extension MDLVertexDescriptor {
             offset: offset,
             bufferIndex: 0)
         offset += MemoryLayout<SIMD2<Float>>.stride
+        vertexDescriptor.layouts[0]
+        = MDLVertexBufferLayout(stride: offset)
         
         vertexDescriptor.attributes[3] = MDLVertexAttribute(
             name: MDLVertexAttributeTangent,
             format: .float3,
             offset: 0,
-            bufferIndex: 0
+            bufferIndex: 1
         )
-        offset += MemoryLayout<SIMD3<Float>>.stride
+        vertexDescriptor.layouts[1] = MDLVertexBufferLayout(stride: MemoryLayout<SIMD3<Float>>.stride)
         
         vertexDescriptor.attributes[4] = MDLVertexAttribute(
             name: MDLVertexAttributeBitangent,
             format: .float3,
             offset: 0,
-            bufferIndex: 0
+            bufferIndex: 2
         )
-        offset += MemoryLayout<SIMD3<Float>>.stride
-        
-        vertexDescriptor.layouts[0]
-        = MDLVertexBufferLayout(stride: offset)
+        vertexDescriptor.layouts[2] = MDLVertexBufferLayout(stride: MemoryLayout<SIMD3<Float>>.stride)
+
         
         return vertexDescriptor
     }
