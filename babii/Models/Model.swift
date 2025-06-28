@@ -94,7 +94,7 @@ struct Model3d: Model {
     var meshes: [Mesh] = []
         
     func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int) {
-        var params = Params(hasSpecular: 0, lightCount: UInt32(lightCount), cameraPosition: cameraPosition)
+        var params = Params(lightCount: UInt32(lightCount), cameraPosition: cameraPosition, tiling: 1)
         renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
         
         for mesh in meshes {

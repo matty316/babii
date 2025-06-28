@@ -20,6 +20,8 @@ public class Renderer: NSObject, MTKViewDelegate {
     let wireframe = false
     var scene: GameScene
     
+    let groundPipelineState: MTLRenderPipelineState
+    
     override public init() {
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("Unable to get GPU")
@@ -54,6 +56,9 @@ public class Renderer: NSObject, MTKViewDelegate {
             
             self.pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
             
+            pipelineStateDescriptor.vertexDescriptor = scene.groundVertexDesc
+            self.groundPipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+            
             guard let commandQueue = device.makeCommandQueue() else {
                 fatalError("cannot make command queue")
             }
@@ -82,8 +87,7 @@ public class Renderer: NSObject, MTKViewDelegate {
         renderEncoder.setDepthStencilState(depthState)
         renderEncoder.setFrontFacing(.counterClockwise)
         renderEncoder.setCullMode(.back)
-        renderEncoder.setRenderPipelineState(pipelineState)
-       
+        
         let currentTime = CFAbsoluteTimeGetCurrent()
         let deltaTime = Float(currentTime - lastTime)
         lastTime = currentTime
@@ -93,7 +97,7 @@ public class Renderer: NSObject, MTKViewDelegate {
             renderEncoder.setTriangleFillMode(.lines)
         }
         
-        scene.render(renderEncoder: renderEncoder, device: device)
+        scene.render(renderEncoder: renderEncoder, device: device, pipelineState: pipelineState, groundPipelineState: groundPipelineState)
         
         renderEncoder.endEncoding()
         if let currentDrawable = view.currentDrawable {

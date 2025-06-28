@@ -11,9 +11,9 @@
 #import <simd/simd.h>
 
 struct Params {
-    uint8_t hasSpecular;
     uint32_t lightCount;
     vector_float3 cameraPosition;
+    uint8_t tiling;
 };
 
 struct Material {

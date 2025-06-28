@@ -28,22 +28,20 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
     
     Material material = _material;
     
-
-    
     if (!is_null_texture(baseColorTexture)) {
-        material.baseColor = baseColorTexture.sample(textureSampler, in.uv).rgb;
+        material.baseColor = baseColorTexture.sample(textureSampler, in.uv * params.tiling).rgb;
     }
     
     if (!is_null_texture(roughnessTexture)) {
-        material.roughness = roughnessTexture.sample(textureSampler, in.uv).r;
+        material.roughness = roughnessTexture.sample(textureSampler, in.uv * params.tiling).r;
     }
     
     if (!is_null_texture(aoTexture)) {
-        material.ambientOcclusion = aoTexture.sample(textureSampler, in.uv).r;
+        material.ambientOcclusion = aoTexture.sample(textureSampler, in.uv * params.tiling).r;
     }
     
     if (!is_null_texture(metallicTexture)) {
-        material.metallic = metallicTexture.sample(textureSampler, in.uv).r;
+        material.metallic = metallicTexture.sample(textureSampler, in.uv * params.tiling).r;
     }
     
     float3 normal;
@@ -52,7 +50,7 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
     } else {
       normal = normalTexture.sample(
       textureSampler,
-      in.uv).rgb;
+      in.uv * params.tiling).rgb;
       normal = normal * 2 - 1;
       normal = float3x3(
         in.worldTangent,

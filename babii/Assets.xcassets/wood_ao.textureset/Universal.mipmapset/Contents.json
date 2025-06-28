@@ -1,0 +1,12 @@
+{
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "levels" : [
+    {
+      "filename" : "wood_floor_worn_ao_4k.png",
+      "mipmap-level" : "base"
+    }
+  ]
+}
