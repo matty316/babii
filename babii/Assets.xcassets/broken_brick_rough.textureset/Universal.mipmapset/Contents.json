@@ -1,0 +1,12 @@
+{
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "levels" : [
+    {
+      "filename" : "broken_brick_wall_rough_4k.png",
+      "mipmap-level" : "base"
+    }
+  ]
+}

@@ -19,10 +19,10 @@ struct GameScene {
     init(device: MTLDevice) {
         let pancakes = Model3d(device: device, assetName: "pancakes_photogrammetry", position: [0,-1,0], rotationAngle: 0, rotation: [0,0,0], scale: 0.05)
         models.append(pancakes)
-        let groundDiff = TextureLoader.shared.loadTexture(name: "wood", device: device)
-        let groundRough = TextureLoader.shared.loadTexture(name: "wood_rough", device: device)
-        let groundAo = TextureLoader.shared.loadTexture(name: "wood_ao", device: device)
-        let groundNorm = TextureLoader.shared.loadTexture(name: "wood_norm", device: device)
+        let groundDiff = TextureLoader.shared.loadTexture(name: "broken_brick", device: device)
+        let groundRough = TextureLoader.shared.loadTexture(name: "broken_brick_rough", device: device)
+        let groundAo = TextureLoader.shared.loadTexture(name: "broken_brick_ao", device: device)
+        let groundNorm = TextureLoader.shared.loadTexture(name: "broken_brick_norm", device: device)
         let ground = Plane(diffuse: groundDiff, roughness: groundRough, ao: groundAo, metallic: nil, normal: groundNorm, device: device)
         models.append(ground)
         self.groundVertexDesc = MTKMetalVertexDescriptorFromModelIO(ground.mesh.vertexDescriptor)!
