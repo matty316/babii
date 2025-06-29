@@ -16,8 +16,7 @@ struct Plane: Model {
     let mesh: MTKMesh
     let type: ModelType
     var position: SIMD3<Float> = [0, -1, 0]
-    var rotationAngle: Float = 270
-    var rotation: SIMD3<Float> = [0, 0, 1]
+    var rotation: SIMD3<Float> = [0, 0, Math.radians(from: 270)]
     var scale: Float = 20
     var material: Material
     

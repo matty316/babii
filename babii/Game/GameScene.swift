@@ -17,7 +17,7 @@ struct GameScene {
     var groundVertexDesc: MTLVertexDescriptor
 
     init(device: MTLDevice) {
-        let pancakes = Model3d(device: device, assetName: "pancakes_photogrammetry", position: [0,-1,0], rotationAngle: 0, rotation: [0,0,0], scale: 0.05)
+        let pancakes = Model3d(device: device, assetName: "pancakes_photogrammetry", position: [0, -1, 0], rotationAngle: 0, rotation: [0, 0, 0], scale: 0.05)
         models.append(pancakes)
         let groundDiff = TextureLoader.shared.loadTexture(name: "broken_brick", device: device)
         let groundRough = TextureLoader.shared.loadTexture(name: "broken_brick_rough", device: device)

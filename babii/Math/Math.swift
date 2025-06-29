@@ -43,23 +43,41 @@ enum Math {
                                       [0, 0, 0, 1]])
     }
     
-    static func rotation(angle: Float, vector: SIMD3<Float>) -> matrix_float4x4 {
-        let c = cos(angle)
-        let s = sin(angle)
-        let d = 1 - c
+    static func rotate(rotation: SIMD3<Float>) -> matrix_float4x4 {
+        let c = cos(rotation * 0.5);
+        let s = sin(rotation * 0.5);
         
-        let x = vector.x * d
-        let y = vector.y * d
-        let z = vector.z * d
+        var quat = simd_float4(repeating: 1.0);
+
+        quat.w = c.x * c.y * c.z + s.x * s.y * s.z;
+        quat.x = s.x * c.y * c.z - c.x * s.y * s.z;
+        quat.y = c.x * s.y * c.z + s.x * c.y * s.z;
+        quat.z = c.x * c.y * s.z - s.x * s.y * c.z;
         
-        let axay = x * vector.y
-        let axaz = z * vector.z
-        let ayaz = y * vector.z
+        var rotationMat = matrix_identity_float4x4;
+        let qxx = quat.x * quat.x;
+        let qyy = quat.y * quat.y;
+        let qzz = quat.z * quat.z;
+        let qxz = quat.x * quat.z;
+        let qxy = quat.x * quat.y;
+        let qyz = quat.y * quat.z;
+        let qwx = quat.w * quat.x;
+        let qwy = quat.w * quat.y;
+        let qwz = quat.w * quat.z;
+
+        rotationMat[0][0] = 1.0 - 2.0 * (qyy + qzz);
+        rotationMat[0][1] = 2.0 * (qxy + qwz);
+        rotationMat[0][2] = 2.0 * (qxz - qwy);
+
+        rotationMat[1][0] = 2.0 * (qxy - qwz);
+        rotationMat[1][1] = 1.0 - 2.0 * (qxx + qzz);
+        rotationMat[1][2] = 2.0 * (qyz + qwx);
+
+        rotationMat[2][0] = 2.0 * (qxz + qwy);
+        rotationMat[2][1] = 2.0 * (qyz - qwx);
+        rotationMat[2][2] = 1.0 - 2.0 * (qxx + qyy);
         
-        return matrix_float4x4(rows: [[c + x * vector.x, axay - s * vector.z, axaz + s * vector.y, 0],
-                                      [axay + s * vector.z, c + y * vector.y, ayaz - s * vector.x, 0],
-                                      [axaz - s * vector.y, ayaz + s * vector.x, c + z * vector.z, 0],
-                                      [0, 0, 0, 1]])
+        return rotationMat
     }
     
     static func scale(vector: SIMD3<Float>) -> matrix_float4x4 {

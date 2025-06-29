@@ -14,7 +14,6 @@ enum ModelType {
 protocol Model {
     var type: ModelType { get }
     var position: SIMD3<Float> { get set }
-    var rotationAngle: Float { get set }
     var rotation: SIMD3<Float> { get set }
     var scale: Float { get set }
     var modelMatrix: matrix_float4x4 { get }
@@ -24,7 +23,7 @@ protocol Model {
 extension Model {
     var modelMatrix: matrix_float4x4 {
         let translation = Math.translation(vector: position)
-        let rotation = Math.rotation(angle: Math.radians(from: rotationAngle), vector: rotation)
+        let rotation = Math.rotate(rotation: rotation)
         let scale = Math.scale(vector: [scale, scale, scale])
         return translation * rotation * scale
     }
