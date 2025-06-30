@@ -14,18 +14,18 @@ struct GameScene {
     var controls = Controls()
     var models = [Model]()
     var lastMouseDelta = Controls.Point()
-    var groundVertexDesc: MTLVertexDescriptor
 
     init(device: MTLDevice) {
         let pancakes = Model3d(device: device, assetName: "pancakes_photogrammetry", position: [0, -1, 0], rotationAngle: 0, rotation: [0, 0, 0], scale: 0.05)
-        models.append(pancakes)
-        let groundDiff = TextureLoader.shared.loadTexture(name: "wood", device: device)
-        let groundRough = TextureLoader.shared.loadTexture(name: "wood_rough", device: device)
-        let groundAo = TextureLoader.shared.loadTexture(name: "wood_ao", device: device)
-        let groundNorm = TextureLoader.shared.loadTexture(name: "wood_norm", device: device)
+//        models.append(pancakes)
+        let groundDiff = TextureLoader.shared.loadTexture(name: "broken_brick", device: device)
+        let groundRough = TextureLoader.shared.loadTexture(name: "broken_brick_rough", device: device)
+        let groundAo = TextureLoader.shared.loadTexture(name: "broken_brick_ao", device: device)
+        let groundNorm = TextureLoader.shared.loadTexture(name: "broken_brick_norm", device: device)
         let ground = Plane(diffuse: groundDiff, roughness: groundRough, ao: groundAo, metallic: nil, normal: groundNorm, device: device)
-        models.append(ground)
-        self.groundVertexDesc = MTKMetalVertexDescriptorFromModelIO(ground.mesh.vertexDescriptor)!
+//        models.append(ground)
+        let skybox = Skybox(device: device, imageName: "mirrored_hall")
+        models.append(skybox)
     }
     
     mutating func update(size: CGSize) {
@@ -54,7 +54,7 @@ struct GameScene {
         }
     }
     
-    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, pipelineState: MTLRenderPipelineState, groundPipelineState: MTLRenderPipelineState) {
+    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice) {
         var viewPos = cam.position
         renderEncoder.setFragmentBytes(&viewPos, length: MemoryLayout<SIMD3<Float>>.stride, index: 2)
         
@@ -64,12 +64,10 @@ struct GameScene {
         
         for model in models {
             var transformation = cam.transformation(model: model.modelMatrix)
-            renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 11)
-            if model.type == .Ground {
-                renderEncoder.setRenderPipelineState(groundPipelineState)
-            } else {
-                renderEncoder.setRenderPipelineState(pipelineState)
+            if model.type == .Skybox {
+                transformation.view.columns.3 = [0, 0, 0, 1]
             }
+            renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 11)
             model.render(renderEncoder: renderEncoder, device: device, cameraPosition: cam.position, lightCount: lights.count)
         }
     }
@@ -79,8 +77,8 @@ struct SceneLighting {
   static func buildDefaultLight() -> Light {
     var light = Light()
     light.position = [0, 0, 0]
-    light.color = SIMD3<Float>(repeating: 1.0)
-    light.specularColor = SIMD3<Float>(repeating: 0.6)
+    light.color = SIMD3<Float>(repeating: 150.0)
+    light.specularColor = SIMD3<Float>(repeating: 150)
     light.attenuation = [1, 0, 0]
     light.type = Sun
     return light
@@ -89,20 +87,12 @@ struct SceneLighting {
   let sunlight: Light = {
     var light = Self.buildDefaultLight()
     light.position = [1.8, 2.2, -2.9]
-    light.color = SIMD3<Float>(repeating: 1)
-    return light
-  }()
-
-  let fillLight: Light = {
-    var light = Self.buildDefaultLight()
-    light.position = [-5, 1, 3]
-    light.color = SIMD3<Float>(repeating: 0.6)
     return light
   }()
 
   var lights: [Light] = []
 
   init() {
-    lights = [sunlight, fillLight]
+    lights = [sunlight]
   }
 }

@@ -14,13 +14,10 @@ public typealias ProcessInputClosure = ((TimeInterval, [GCKeyCode: Bool], SIMD2<
 public class Renderer: NSObject, MTKViewDelegate {
     let device: MTLDevice
     let depthState: MTLDepthStencilState
-    let pipelineState: MTLRenderPipelineState
     let commandQueue: MTLCommandQueue
     var lastTime: Double = CFAbsoluteTimeGetCurrent()
     let wireframe = false
     var scene: GameScene
-    
-    let groundPipelineState: MTLRenderPipelineState
     
     override public init() {
         guard let device = MTLCreateSystemDefaultDevice() else {
@@ -29,44 +26,23 @@ public class Renderer: NSObject, MTKViewDelegate {
         
         self.device = device
         
-        do {
-            let library = try device.makeDefaultLibrary(bundle: .main)
-            
-            let vertexFunc = library.makeFunction(name: "vertexShader")
-            let fragmentFunc = library.makeFunction(name: wireframe ? "fragmentSolid" : "fragmentShader")
-            
-            let depthDescriptor = MTLDepthStencilDescriptor()
-            depthDescriptor.depthCompareFunction = .lessEqual
-            depthDescriptor.isDepthWriteEnabled = true
-            
-            guard let depthState = device.makeDepthStencilState(descriptor: depthDescriptor) else {
-                fatalError("cannot get depth state")
-            }
-            
-            self.depthState = depthState
-            self.scene = GameScene(device: device)
-            
-            let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
-            pipelineStateDescriptor.label = "Render Pipeline"
-            pipelineStateDescriptor.vertexFunction = vertexFunc
-            pipelineStateDescriptor.fragmentFunction = fragmentFunc
-            pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-            pipelineStateDescriptor.depthAttachmentPixelFormat = .depth32Float
-            pipelineStateDescriptor.vertexDescriptor = .vertexDescriptor()
-            
-            self.pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
-            
-            pipelineStateDescriptor.vertexDescriptor = scene.groundVertexDesc
-            self.groundPipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
-            
-            guard let commandQueue = device.makeCommandQueue() else {
-                fatalError("cannot make command queue")
-            }
-            
-            self.commandQueue = commandQueue
-        } catch {
-            fatalError(error.localizedDescription)
+        let depthDescriptor = MTLDepthStencilDescriptor()
+        depthDescriptor.depthCompareFunction = .lessEqual
+        depthDescriptor.isDepthWriteEnabled = true
+        
+        guard let depthState = device.makeDepthStencilState(descriptor: depthDescriptor) else {
+            fatalError("cannot get depth state")
         }
+        
+        self.depthState = depthState
+        self.scene = GameScene(device: device)
+                    
+        guard let commandQueue = device.makeCommandQueue() else {
+            fatalError("cannot make command queue")
+        }
+        
+        self.commandQueue = commandQueue
+        
         super.init()
     }
     
@@ -97,7 +73,7 @@ public class Renderer: NSObject, MTKViewDelegate {
             renderEncoder.setTriangleFillMode(.lines)
         }
         
-        scene.render(renderEncoder: renderEncoder, device: device, pipelineState: pipelineState, groundPipelineState: groundPipelineState)
+        scene.render(renderEncoder: renderEncoder, device: device)
         
         renderEncoder.endEncoding()
         if let currentDrawable = view.currentDrawable {

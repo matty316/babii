@@ -19,6 +19,7 @@ struct Plane: Model {
     var rotation: SIMD3<Float> = [0, 0, Math.radians(from: 270)]
     var scale: Float = 20
     var material: Material
+    let pipelineState: MTLRenderPipelineState
     
     init(
         diffuse: MTLTexture?,
@@ -44,9 +45,27 @@ struct Plane: Model {
         mdlMesh.addTangentBasis(forTextureCoordinateAttributeNamed: MDLVertexAttributeTextureCoordinate, tangentAttributeNamed: MDLVertexAttributeTangent, bitangentAttributeNamed: MDLVertexAttributeBitangent)
         self.mesh = try! MTKMesh(mesh: mdlMesh, device: device)
         self.material = Material()
+        do {
+            let library = try device.makeDefaultLibrary(bundle: .main)
+            
+            let vertexFunc = library.makeFunction(name: "vertexShader")
+            let fragmentFunc = library.makeFunction(name: "fragmentShader")
+            
+            let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+            pipelineStateDescriptor.label = "Render Pipeline"
+            pipelineStateDescriptor.vertexFunction = vertexFunc
+            pipelineStateDescriptor.fragmentFunction = fragmentFunc
+            pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+            pipelineStateDescriptor.depthAttachmentPixelFormat = .depth32Float
+            pipelineStateDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(mesh.vertexDescriptor)
+            self.pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+        } catch {
+            fatalError(error.localizedDescription)
+        }
     }
     
     func render(renderEncoder: any MTLRenderCommandEncoder, device: any MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int) {
+        renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setFragmentTexture(diffuse, index: 0)
         renderEncoder.setFragmentTexture(roughness, index: 1)
         renderEncoder.setFragmentTexture(normal, index: 2)
