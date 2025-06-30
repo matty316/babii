@@ -78,8 +78,6 @@ struct SceneLighting {
     var light = Light()
     light.position = [0, 0, 0]
     light.color = SIMD3<Float>(repeating: 150.0)
-    light.specularColor = SIMD3<Float>(repeating: 150)
-    light.attenuation = [1, 0, 0]
     light.type = Sun
     return light
   }
