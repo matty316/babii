@@ -13,6 +13,10 @@ using namespace metal;
 
 float3 computeSpecular(constant Light *lights, constant Params &params, Material material, float3 normal);
 float3 computeDiffuse(constant Light *lights, constant Params &params, Material material, float3 normal);
+float3 fresnelSchlick(float cosTheta, float3 F0);
+float distributionGGX(float3 N, float3 H, float roughness);
+float geometrySchlickGGX(float NdotV, float roughness);
+float geometrySmith(float3 N, float3 V, float3 L, float roughness);
 
 fragment float4 fragmentShader(Fragment in [[stage_in]],
                                texture2d<float> baseColorTexture [[texture(0)]],
@@ -28,22 +32,20 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
     
     Material material = _material;
     
-
-    
     if (!is_null_texture(baseColorTexture)) {
-        material.baseColor = baseColorTexture.sample(textureSampler, in.uv).rgb;
+        material.baseColor = pow(baseColorTexture.sample(textureSampler, in.uv * params.tiling).rgb, 2.2);
     }
     
     if (!is_null_texture(roughnessTexture)) {
-        material.roughness = roughnessTexture.sample(textureSampler, in.uv).r;
+        material.roughness = roughnessTexture.sample(textureSampler, in.uv * params.tiling).r;
     }
     
     if (!is_null_texture(aoTexture)) {
-        material.ambientOcclusion = aoTexture.sample(textureSampler, in.uv).r;
+        material.ambientOcclusion = aoTexture.sample(textureSampler, in.uv * params.tiling).r;
     }
     
     if (!is_null_texture(metallicTexture)) {
-        material.metallic = metallicTexture.sample(textureSampler, in.uv).r;
+        material.metallic = metallicTexture.sample(textureSampler, in.uv * params.tiling).r;
     }
     
     float3 normal;
@@ -52,20 +54,51 @@ fragment float4 fragmentShader(Fragment in [[stage_in]],
     } else {
       normal = normalTexture.sample(
       textureSampler,
-      in.uv).rgb;
+      in.uv * params.tiling).rgb;
       normal = normal * 2 - 1;
       normal = float3x3(
         in.worldTangent,
         in.worldBitangent,
         in.worldNormal) * normal;
     }
-    normal = normalize(normal);
+    float3 N = normalize(normal);
+    float3 V = normalize(params.cameraPosition - in.worldPosition.xyz);
     
-    float3 diffuseColor = computeDiffuse(lights, params, material, normal);
-
-    float3 specularColor = computeSpecular(lights, params, material, normal);
+    float3 F0 = float3(0.04);
+    F0 = mix(F0, material.baseColor, material.metallic);
     
-    return float4(diffuseColor + specularColor, 1);
+    float3 Lo = float3(0.0);
+    for (size_t i = 0; i < params.lightCount; i++) {
+        float3 L = normalize(lights[i].position - in.worldPosition.xyz);
+        float3 H = normalize(V + L);
+        float distance = length(lights[i].position - in.worldPosition.xyz);
+        float attenuation = 1.0 / (distance * distance);
+        float3 radiance = lights[i].color * attenuation;
+        
+        float NDF = distributionGGX(N, H, material.roughness);
+        float G = geometrySmith(N, V, L, material.roughness);
+        float3 F = fresnelSchlick(saturate(dot(H, V)), F0);
+        
+        float3 kS = F;
+        float3 kD = float3(1.0) - kS;
+        kD *= 1.0 - material.metallic;
+        
+        float3 numerator = NDF * G * F;
+        float denominator = 4.0 * saturate(dot(N, V)) * saturate(dot(N, L)) + 0.0001;
+        float3 specular = numerator / denominator;
+        
+        
+        float NdotL = saturate(dot(N, L));
+        Lo += (kD * material.baseColor / M_PI_F + specular) * radiance * NdotL;
+    }
+    
+    float3 ambient = float3(0.03) * material.baseColor * material.ambientOcclusion;
+    float3 color = ambient + Lo;
+    
+    color = color / (color + float3(1.0));
+    color = pow(color, float3(1.0/2.2));
+    
+    return float4(color, 1.0);
 }
 
 fragment float4 fragmentSolid(Fragment in [[stage_in]]) {
@@ -142,3 +175,40 @@ float3 computeDiffuse(
   }
   return diffuseTotal;
 }
+
+float3 fresnelSchlick(float cosTheta, float3 F0) {
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+float distributionGGX(float3 N, float3 H, float roughness) {
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = saturate(dot(N, H));
+    float NdotH2 = NdotH * NdotH;
+    
+    float num = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = M_PI_F * denom * denom;
+    
+    return num / denom;
+}
+
+float geometrySchlickGGX(float NdotV, float roughness) {
+    float r = (roughness + 1.0);
+    float k = (r * r) / 8.0;
+    
+    float num = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+    
+    return num / denom;
+}
+
+float geometrySmith(float3 N, float3 V, float3 L, float roughness) {
+    float NdotV = saturate(dot(N, V));
+    float NdotL = saturate(dot(N, L));
+    float ggx2 = geometrySchlickGGX(NdotV, roughness);
+    float ggx1 = geometrySchlickGGX(NdotL, roughness);
+    
+    return ggx1 * ggx2;
+}
+

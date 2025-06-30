@@ -14,7 +14,6 @@ enum ModelType {
 protocol Model {
     var type: ModelType { get }
     var position: SIMD3<Float> { get set }
-    var rotationAngle: Float { get set }
     var rotation: SIMD3<Float> { get set }
     var scale: Float { get set }
     var modelMatrix: matrix_float4x4 { get }
@@ -24,7 +23,7 @@ protocol Model {
 extension Model {
     var modelMatrix: matrix_float4x4 {
         let translation = Math.translation(vector: position)
-        let rotation = Math.rotation(angle: Math.radians(from: rotationAngle), vector: rotation)
+        let rotation = Math.rotate(rotation: rotation)
         let scale = Math.scale(vector: [scale, scale, scale])
         return translation * rotation * scale
     }
@@ -94,7 +93,7 @@ struct Model3d: Model {
     var meshes: [Mesh] = []
         
     func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int) {
-        var params = Params(hasSpecular: 0, lightCount: UInt32(lightCount), cameraPosition: cameraPosition)
+        var params = Params(lightCount: UInt32(lightCount), cameraPosition: cameraPosition, tiling: 1)
         renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
         
         for mesh in meshes {

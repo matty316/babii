@@ -72,7 +72,7 @@ struct Cube: Model {
         
         renderEncoder.setFragmentTexture(diffuse, index: 0)
         renderEncoder.setFragmentTexture(specular, index: 1)
-        var params = Params(hasSpecular: 1, lightCount: 0, cameraPosition: cameraPosition)
+        var params = Params(lightCount: 0, cameraPosition: cameraPosition, tiling: 1)
         renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
         
         renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertices.count)

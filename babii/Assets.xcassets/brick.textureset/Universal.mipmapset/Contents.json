@@ -1,0 +1,12 @@
+{
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "levels" : [
+    {
+      "filename" : "red_brick_diff_4k.png",
+      "mipmap-level" : "base"
+    }
+  ]
+}
