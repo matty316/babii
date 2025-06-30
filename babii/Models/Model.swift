@@ -8,7 +8,7 @@
 import MetalKit
 
 enum ModelType {
-    case ModelIO, Vertex, Ground
+    case ModelIO, Vertex, Ground, Skybox
 }
 
 protocol Model {
@@ -17,6 +17,7 @@ protocol Model {
     var rotation: SIMD3<Float> { get set }
     var scale: Float { get set }
     var modelMatrix: matrix_float4x4 { get }
+    var pipelineState: MTLRenderPipelineState { get }
     func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int)
 }
 
@@ -79,7 +80,6 @@ extension MDLVertexDescriptor {
         )
         vertexDescriptor.layouts[2] = MDLVertexBufferLayout(stride: MemoryLayout<SIMD3<Float>>.stride)
 
-        
         return vertexDescriptor
     }
 }
@@ -90,9 +90,12 @@ struct Model3d: Model {
     var rotationAngle: Float
     var rotation: SIMD3<Float>
     var scale: Float
+    let pipelineState: MTLRenderPipelineState
     var meshes: [Mesh] = []
         
     func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int) {
+        renderEncoder.setRenderPipelineState(pipelineState)
+
         var params = Params(lightCount: UInt32(lightCount), cameraPosition: cameraPosition, tiling: 1)
         renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
         
@@ -139,6 +142,24 @@ struct Model3d: Model {
             mdlMesh.addTangentBasis(forTextureCoordinateAttributeNamed: MDLVertexAttributeTextureCoordinate, tangentAttributeNamed: MDLVertexAttributeTangent, bitangentAttributeNamed: MDLVertexAttributeBitangent)
             let mtkMesh = try! MTKMesh(mesh: mdlMesh, device: device)
             self.meshes.append(Mesh(mtkMesh: mtkMesh, mdlMesh: mdlMesh, device: device))
+        }
+        
+        do {
+            let library = try device.makeDefaultLibrary(bundle: .main)
+            
+            let vertexFunc = library.makeFunction(name: "vertexShader")
+            let fragmentFunc = library.makeFunction(name: "fragmentShader")
+            
+            let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+            pipelineStateDescriptor.label = "Render Pipeline"
+            pipelineStateDescriptor.vertexFunction = vertexFunc
+            pipelineStateDescriptor.fragmentFunction = fragmentFunc
+            pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+            pipelineStateDescriptor.depthAttachmentPixelFormat = .depth32Float
+            pipelineStateDescriptor.vertexDescriptor = .vertexDescriptor()
+            self.pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+        } catch {
+            fatalError(error.localizedDescription)
         }
     }
 }

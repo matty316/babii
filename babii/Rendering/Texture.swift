@@ -39,4 +39,25 @@ class TextureLoader {
       textures[name] = texture
       return texture
     }
+    
+    func loadCubeTexture(imageName: String, device: MTLDevice) -> MTLTexture? {
+      let textureLoader = MTKTextureLoader(device: device)
+      // asset catalog loading
+      if let texture = MDLTexture(cubeWithImagesNamed: [imageName]) {
+        let options: [MTKTextureLoader.Option: Any] = [
+          .origin: MTKTextureLoader.Origin.topLeft,
+          .SRGB: false,
+          .generateMipmaps: false
+        ]
+        return try? textureLoader.newTexture(
+          texture: texture,
+          options: options)
+      }
+      // bundle file loading
+      let texture = try? textureLoader.newTexture(
+        name: imageName,
+        scaleFactor: 1.0,
+        bundle: .main)
+      return texture
+    }
 }
