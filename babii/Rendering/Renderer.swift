@@ -81,12 +81,4 @@ public class Renderer: NSObject, MTKViewDelegate {
         }
         commandBuffer.commit()
     }
-    
-//    static func depthTexture() -> MTLTextureDescriptor {
-//        
-//    }
-//    
-//    static func msaaTexture() -> MTLTextureDescriptor {
-//        
-//    }
 }

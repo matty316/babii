@@ -17,19 +17,17 @@ struct Plane: Model {
     let type: ModelType
     var position: SIMD3<Float> = [0, -1, 0]
     var rotation: SIMD3<Float> = [0, 0, Math.radians(from: 270)]
-    var scale: Float = 20
+    var scale: Float = 100
     var material: Material
     let pipelineState: MTLRenderPipelineState
     
-    init(
-        diffuse: MTLTexture?,
-        roughness: MTLTexture?,
-        ao: MTLTexture?,
-        metallic: MTLTexture?,
-        normal: MTLTexture?,
-        device: MTLDevice
-    ) {
+    init(textureName: String, device: MTLDevice) {
         self.type = .Ground
+        let diffuse = TextureLoader.shared.loadTexture(name: "\(textureName)", device: device)
+        let roughness = TextureLoader.shared.loadTexture(name: "\(textureName)_rough", device: device)
+        let ao = TextureLoader.shared.loadTexture(name: "\(textureName)_ao", device: device)
+        let normal = TextureLoader.shared.loadTexture(name: "\(textureName)_norm", device: device)
+        let metallic = TextureLoader.shared.loadTexture(name: "\(textureName)_metallic", device: device)
         self.diffuse = diffuse
         self.roughness = roughness
         self.ao = ao
