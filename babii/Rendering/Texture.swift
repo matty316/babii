@@ -25,39 +25,39 @@ class TextureLoader {
     }
     
     func loadTexture(texture: MDLTexture, name: String, device: MTLDevice) -> MTLTexture? {
-      if let texture = textures[name] {
-        return texture
-      }
-      let textureLoader = MTKTextureLoader(device: device)
-      let textureLoaderOptions: [MTKTextureLoader.Option: Any] =
+        if let texture = textures[name] {
+            return texture
+        }
+        let textureLoader = MTKTextureLoader(device: device)
+        let textureLoaderOptions: [MTKTextureLoader.Option: Any] =
         [.origin: MTKTextureLoader.Origin.bottomLeft,
          .generateMipmaps: true]
-      let texture = try? textureLoader.newTexture(
-        texture: texture,
-        options: textureLoaderOptions)
-      print("loaded texture from USD file", name)
-      textures[name] = texture
-      return texture
+        let texture = try? textureLoader.newTexture(
+            texture: texture,
+            options: textureLoaderOptions)
+        print("loaded texture from USD file", name)
+        textures[name] = texture
+        return texture
     }
     
     func loadCubeTexture(imageName: String, device: MTLDevice) -> MTLTexture? {
-      let textureLoader = MTKTextureLoader(device: device)
-      // asset catalog loading
-      if let texture = MDLTexture(cubeWithImagesNamed: [imageName]) {
-        let options: [MTKTextureLoader.Option: Any] = [
-          .origin: MTKTextureLoader.Origin.topLeft,
-          .SRGB: false,
-          .generateMipmaps: false
-        ]
-        return try? textureLoader.newTexture(
-          texture: texture,
-          options: options)
-      }
-      // bundle file loading
-      let texture = try? textureLoader.newTexture(
-        name: imageName,
-        scaleFactor: 1.0,
-        bundle: .main)
-      return texture
+        let textureLoader = MTKTextureLoader(device: device)
+        // asset catalog loading
+        if let texture = MDLTexture(cubeWithImagesNamed: [imageName]) {
+            let options: [MTKTextureLoader.Option: Any] = [
+                .origin: MTKTextureLoader.Origin.topLeft,
+                .SRGB: false,
+                .generateMipmaps: false
+            ]
+            return try? textureLoader.newTexture(
+                texture: texture,
+                options: options)
+        }
+        // bundle file loading
+        let texture = try? textureLoader.newTexture(
+            name: imageName,
+            scaleFactor: 1.0,
+            bundle: .main)
+        return texture
     }
 }
