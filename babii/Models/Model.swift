@@ -18,6 +18,7 @@ protocol Model {
     var scale: Float { get set }
     var modelMatrix: matrix_float4x4 { get }
     var pipelineState: MTLRenderPipelineState { get }
+    var shadowPipelineState: MTLRenderPipelineState { get }
     func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int)
 }
 
@@ -27,6 +28,34 @@ extension Model {
         let rotation = Math.rotate(rotation: rotation)
         let scale = Math.scale(vector: [scale, scale, scale])
         return translation * rotation * scale
+    }
+    
+    static func createPipelineState(device: MTLDevice, vertexDescriptor: MTLVertexDescriptor, vertexName: String = "vertexShader", fragmentName: String = "fragmentShader") throws -> MTLRenderPipelineState {
+        let library = try device.makeDefaultLibrary(bundle: .main)
+        
+        let vertexFunc = library.makeFunction(name: vertexName)
+        let fragmentFunc = library.makeFunction(name: fragmentName)
+        let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+        pipelineStateDescriptor.label = "Render Pipeline"
+        pipelineStateDescriptor.vertexFunction = vertexFunc
+        pipelineStateDescriptor.fragmentFunction = fragmentFunc
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        pipelineStateDescriptor.depthAttachmentPixelFormat = .depth32Float
+        pipelineStateDescriptor.vertexDescriptor = vertexDescriptor
+        return try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+    }
+    
+    static func createShadowPipelineState(device: MTLDevice, vertexDescriptor: MTLVertexDescriptor) throws -> MTLRenderPipelineState {
+        let library = try device.makeDefaultLibrary(bundle: .main)
+        
+        let vertexFunc = library.makeFunction(name: "vertex_depth")
+        let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
+        pipelineStateDescriptor.label = "Render Pipeline"
+        pipelineStateDescriptor.vertexFunction = vertexFunc
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = .invalid
+        pipelineStateDescriptor.depthAttachmentPixelFormat = .depth32Float
+        pipelineStateDescriptor.vertexDescriptor = vertexDescriptor
+        return try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
     }
 }
 
@@ -91,6 +120,8 @@ struct Model3d: Model {
     var rotation: SIMD3<Float>
     var scale: Float
     let pipelineState: MTLRenderPipelineState
+    let vertexDescriptor: MTLVertexDescriptor = .vertexDescriptor()
+    let shadowPipelineState: MTLRenderPipelineState
     var meshes: [Mesh] = []
         
     func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int) {
@@ -145,19 +176,8 @@ struct Model3d: Model {
         }
         
         do {
-            let library = try device.makeDefaultLibrary(bundle: .main)
-            
-            let vertexFunc = library.makeFunction(name: "vertexShader")
-            let fragmentFunc = library.makeFunction(name: "fragmentShader")
-            
-            let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
-            pipelineStateDescriptor.label = "Render Pipeline"
-            pipelineStateDescriptor.vertexFunction = vertexFunc
-            pipelineStateDescriptor.fragmentFunction = fragmentFunc
-            pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-            pipelineStateDescriptor.depthAttachmentPixelFormat = .depth32Float
-            pipelineStateDescriptor.vertexDescriptor = .vertexDescriptor()
-            self.pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+            self.pipelineState = try Self.createPipelineState(device: device, vertexDescriptor: .vertexDescriptor())
+            self.shadowPipelineState = try Self.createShadowPipelineState(device: device, vertexDescriptor: .vertexDescriptor())
         } catch {
             fatalError(error.localizedDescription)
         }

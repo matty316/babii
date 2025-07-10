@@ -20,6 +20,7 @@ struct Plane: Model {
     var scale: Float = 100
     var material: Material
     let pipelineState: MTLRenderPipelineState
+    let shadowPipelineState: MTLRenderPipelineState
     
     init(textureName: String, device: MTLDevice) {
         self.type = .Ground
@@ -44,19 +45,9 @@ struct Plane: Model {
         self.mesh = try! MTKMesh(mesh: mdlMesh, device: device)
         self.material = Material()
         do {
-            let library = try device.makeDefaultLibrary(bundle: .main)
-            
-            let vertexFunc = library.makeFunction(name: "vertexShader")
-            let fragmentFunc = library.makeFunction(name: "fragmentShader")
-            
-            let pipelineStateDescriptor = MTLRenderPipelineDescriptor()
-            pipelineStateDescriptor.label = "Render Pipeline"
-            pipelineStateDescriptor.vertexFunction = vertexFunc
-            pipelineStateDescriptor.fragmentFunction = fragmentFunc
-            pipelineStateDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-            pipelineStateDescriptor.depthAttachmentPixelFormat = .depth32Float
-            pipelineStateDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(mesh.vertexDescriptor)
-            self.pipelineState = try device.makeRenderPipelineState(descriptor: pipelineStateDescriptor)
+            guard let vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(mesh.vertexDescriptor) else { fatalError("cannot create MTLVertexDescriptor") }
+            self.pipelineState = try Self.createPipelineState(device: device, vertexDescriptor: vertexDescriptor)
+            self.shadowPipelineState = try Self.createShadowPipelineState(device: device, vertexDescriptor: vertexDescriptor)
         } catch {
             fatalError(error.localizedDescription)
         }

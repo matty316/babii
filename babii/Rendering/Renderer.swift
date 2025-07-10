@@ -19,7 +19,6 @@ public class Renderer: NSObject, MTKViewDelegate {
     let wireframe = false
     var scene: GameScene
     var shadowTexture: MTLTexture?
-    let shadowPipelineState: MTLRenderPipelineState
     
     override public init() {
         guard let device = MTLCreateSystemDefaultDevice() else {
@@ -46,14 +45,6 @@ public class Renderer: NSObject, MTKViewDelegate {
         self.commandQueue = commandQueue
         
         self.shadowTexture = Self.makeTexture(size: CGSize(width: 2048, height: 2048), pixelFormat: .depth32Float, label: "Shadow Texture", storageMode: .private, usage: [.shaderRead, .renderTarget], device: device)
-        
-        let library = try! device.makeDefaultLibrary(bundle: .main)
-        
-        let shadowPipelineDescriptor = MTLRenderPipelineDescriptor()
-        shadowPipelineDescriptor.vertexFunction = library.makeFunction(name: "shadow_vertex")
-        shadowPipelineDescriptor.colorAttachments[0].pixelFormat = .invalid
-        shadowPipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
-        
         
         super.init()
     }

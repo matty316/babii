@@ -17,6 +17,7 @@ struct Skybox: Model {
     var scale: Float = 1
     
     let pipelineState: MTLRenderPipelineState
+    let shadowPipelineState: MTLRenderPipelineState
     
     let mesh: MTKMesh
     let skyTexture: MTLTexture?
@@ -43,17 +44,12 @@ struct Skybox: Model {
         
         do {
             self.mesh = try MTKMesh(mesh: mdlMesh, device: device)
-            let library = try device.makeDefaultLibrary(bundle: .main)
             
-            let vertexFunction = library.makeFunction(name: "vertex_skybox")
-            let fragmentFunction = library.makeFunction(name: "fragment_skybox")
-            let pipelineDescriptor = MTLRenderPipelineDescriptor()
-            pipelineDescriptor.vertexFunction = vertexFunction
-            pipelineDescriptor.fragmentFunction = fragmentFunction
-            pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-            pipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
-            pipelineDescriptor.vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(mesh.vertexDescriptor)
-            self.pipelineState = try device.makeRenderPipelineState(descriptor: pipelineDescriptor)
+            guard let vertexDescriptor = MTKMetalVertexDescriptorFromModelIO(mesh.vertexDescriptor) else {
+                fatalError("Cannot create vertex descriptor")
+            }
+            self.pipelineState = try Self.createPipelineState(device: device, vertexDescriptor: vertexDescriptor, vertexName: "vertex_skybox", fragmentName: "fragment_skybox")
+            self.shadowPipelineState = try Self.createShadowPipelineState(device: device, vertexDescriptor: vertexDescriptor)
         } catch {
             fatalError(error.localizedDescription)
         }
