@@ -18,6 +18,8 @@ public class Renderer: NSObject, MTKViewDelegate {
     var lastTime: Double = CFAbsoluteTimeGetCurrent()
     let wireframe = false
     var scene: GameScene
+    var shadowTexture: MTLTexture?
+    let shadowPipelineState: MTLRenderPipelineState
     
     override public init() {
         guard let device = MTLCreateSystemDefaultDevice() else {
@@ -43,11 +45,53 @@ public class Renderer: NSObject, MTKViewDelegate {
         
         self.commandQueue = commandQueue
         
+        self.shadowTexture = Self.makeTexture(size: CGSize(width: 2048, height: 2048), pixelFormat: .depth32Float, label: "Shadow Texture", storageMode: .private, usage: [.shaderRead, .renderTarget], device: device)
+        
+        let library = try! device.makeDefaultLibrary(bundle: .main)
+        
+        let shadowPipelineDescriptor = MTLRenderPipelineDescriptor()
+        shadowPipelineDescriptor.vertexFunction = library.makeFunction(name: "shadow_vertex")
+        shadowPipelineDescriptor.colorAttachments[0].pixelFormat = .invalid
+        shadowPipelineDescriptor.depthAttachmentPixelFormat = .depth32Float
+        
+        
         super.init()
     }
     
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         scene.update(size: size)
+    }
+    
+    private static func makeTexture(size: CGSize, pixelFormat: MTLPixelFormat, label: String, storageMode: MTLStorageMode, usage: MTLTextureUsage, device: MTLDevice) -> MTLTexture? {
+        let width = Int(size.width)
+        let height = Int(size.height)
+        
+        guard width > 0 && height > 0 else { return nil }
+        
+        let desc = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: pixelFormat, width: width, height: height, mipmapped: false)
+        desc.storageMode = storageMode
+        desc.usage = usage
+        guard let texture = device.makeTexture(descriptor: desc) else {
+            fatalError("Cannot create texture")
+        }
+        texture.label = label
+        return texture
+    }
+    
+    private func shadowRenderPass(commandBuffer: MTLCommandBuffer) {
+        let descriptor = MTLRenderPassDescriptor()
+        descriptor.depthAttachment.texture = shadowTexture
+        descriptor.depthAttachment.loadAction = .clear
+        descriptor.depthAttachment.storeAction = .store
+        
+        guard let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor) else {
+            return
+        }
+        
+        renderEncoder.label = "Shadow Encoder"
+        
+        renderEncoder.setDepthStencilState(depthState)
+        
     }
         
     public func draw(in view: MTKView) {
