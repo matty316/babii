@@ -18,8 +18,6 @@ vertex float4
   vertex_depth(const VertexIn in [[stage_in]],
   constant Transformation &tranformation [[buffer(11)]])
 {
-  matrix_float4x4 mvp =
-    tranformation.projection * tranformation.view
-    * tranformation.model;
+  matrix_float4x4 mvp = tranformation.projection * tranformation.view * tranformation.model;
   return mvp * in.position;
 }

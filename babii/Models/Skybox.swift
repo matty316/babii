@@ -22,11 +22,22 @@ struct Skybox: Model {
     let mesh: MTKMesh
     let skyTexture: MTLTexture?
     
-    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int) {
-        renderEncoder.setRenderPipelineState(pipelineState)
+    func render(
+        renderEncoder: MTLRenderCommandEncoder,
+        device: MTLDevice,
+        cameraPosition: SIMD3<Float>,
+        lightCount: Int,
+        renderPassType: RenderPassType
+    ) {
+        switch renderPassType {
+        case .Render:
+            renderEncoder.setRenderPipelineState(pipelineState)
+            renderEncoder.setFragmentTexture(skyTexture, index: 0)
+        case .Shadow:
+            renderEncoder.setRenderPipelineState(shadowPipelineState)
+        }
         renderEncoder.setVertexBuffer(mesh.vertexBuffers[0].buffer, offset: 0, index: 0)
         let submesh = mesh.submeshes[0]
-        renderEncoder.setFragmentTexture(skyTexture, index: 0)
         renderEncoder.drawIndexedPrimitives(type: .triangle, indexCount: submesh.indexCount, indexType: submesh.indexType, indexBuffer: submesh.indexBuffer.buffer, indexBufferOffset: submesh.indexBuffer.offset)
     }
     

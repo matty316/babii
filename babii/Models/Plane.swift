@@ -53,17 +53,29 @@ struct Plane: Model {
         }
     }
     
-    func render(renderEncoder: any MTLRenderCommandEncoder, device: any MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int) {
-        renderEncoder.setRenderPipelineState(pipelineState)
-        renderEncoder.setFragmentTexture(diffuse, index: 0)
-        renderEncoder.setFragmentTexture(roughness, index: 1)
-        renderEncoder.setFragmentTexture(normal, index: 2)
-        renderEncoder.setFragmentTexture(ao, index: 3)
-        renderEncoder.setFragmentTexture(metallic, index: 4)
-        var params = Params(lightCount: UInt32(lightCount), cameraPosition: cameraPosition, tiling: 16)
-        renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
-        var material = self.material
-        renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: 7)
+    func render(
+        renderEncoder: any MTLRenderCommandEncoder,
+        device: any MTLDevice,
+        cameraPosition: SIMD3<Float>,
+        lightCount: Int,
+        renderPassType: RenderPassType,
+    ) {
+        switch renderPassType {
+        case .Render:
+            renderEncoder.setRenderPipelineState(pipelineState)
+            renderEncoder.setFragmentTexture(diffuse, index: 0)
+            renderEncoder.setFragmentTexture(roughness, index: 1)
+            renderEncoder.setFragmentTexture(normal, index: 2)
+            renderEncoder.setFragmentTexture(ao, index: 3)
+            renderEncoder.setFragmentTexture(metallic, index: 4)
+            var params = Params(lightCount: UInt32(lightCount), cameraPosition: cameraPosition, tiling: 16)
+            renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
+            var material = self.material
+            renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: 7)
+        case .Shadow:
+            renderEncoder.setRenderPipelineState(shadowPipelineState)
+        }
+        
         for (i, buffer) in mesh.vertexBuffers.enumerated() {
             renderEncoder.setVertexBuffer(buffer.buffer, offset: 0, index: i)
         }

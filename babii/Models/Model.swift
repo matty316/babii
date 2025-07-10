@@ -19,7 +19,7 @@ protocol Model {
     var modelMatrix: matrix_float4x4 { get }
     var pipelineState: MTLRenderPipelineState { get }
     var shadowPipelineState: MTLRenderPipelineState { get }
-    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int)
+    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int, renderPassType: RenderPassType)
 }
 
 extension Model {
@@ -124,24 +124,36 @@ struct Model3d: Model {
     let shadowPipelineState: MTLRenderPipelineState
     var meshes: [Mesh] = []
         
-    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, cameraPosition: SIMD3<Float>, lightCount: Int) {
-        renderEncoder.setRenderPipelineState(pipelineState)
-
-        var params = Params(lightCount: UInt32(lightCount), cameraPosition: cameraPosition, tiling: 1)
-        renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
+    func render(
+        renderEncoder: MTLRenderCommandEncoder,
+        device: MTLDevice,
+        cameraPosition: SIMD3<Float>,
+        lightCount: Int,
+        renderPassType: RenderPassType
+    ) {
+        switch renderPassType {
+        case .Render:
+            renderEncoder.setRenderPipelineState(pipelineState)
+            var params = Params(lightCount: UInt32(lightCount), cameraPosition: cameraPosition, tiling: 1)
+            renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
+        case .Shadow:
+            renderEncoder.setRenderPipelineState(shadowPipelineState)
+        }
         
         for mesh in meshes {
             for (i, vertexBuffer) in mesh.mtkMesh.vertexBuffers.enumerated() {
                 renderEncoder.setVertexBuffer(vertexBuffer.buffer, offset: 0, index: i)
             }
             for submesh in mesh.submeshes {
-                renderEncoder.setFragmentTexture(submesh.baseColor, index: 0)
-                renderEncoder.setFragmentTexture(submesh.roughness, index: 1)
-                renderEncoder.setFragmentTexture(submesh.normal, index: 2)
-                renderEncoder.setFragmentTexture(submesh.ambientOcclussion, index: 3)
-                renderEncoder.setFragmentTexture(submesh.metallic, index: 4)
-                var material = submesh.material
-                renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: 7)
+                if renderPassType == .Render {
+                    renderEncoder.setFragmentTexture(submesh.baseColor, index: 0)
+                    renderEncoder.setFragmentTexture(submesh.roughness, index: 1)
+                    renderEncoder.setFragmentTexture(submesh.normal, index: 2)
+                    renderEncoder.setFragmentTexture(submesh.ambientOcclussion, index: 3)
+                    renderEncoder.setFragmentTexture(submesh.metallic, index: 4)
+                    var material = submesh.material
+                    renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: 7)
+                }
                 renderEncoder.drawIndexedPrimitives(
                     type: .triangle,
                     indexCount: submesh.indexCount,

@@ -50,21 +50,34 @@ struct GameScene {
         }
     }
     
-    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice) {
-        var viewPos = cam.position
-        renderEncoder.setFragmentBytes(&viewPos, length: MemoryLayout<SIMD3<Float>>.stride, index: 2)
-        
-        var lights = SceneLighting().lights
-        
-        renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: 3)
-        
-        for model in models {
-            var transformation = cam.transformation(model: model.modelMatrix)
-            if model.type == .Skybox {
-                transformation.view.columns.3 = [0, 0, 0, 1]
+    func render(renderEncoder: MTLRenderCommandEncoder, device: MTLDevice, renderPassType: RenderPassType) {
+        switch renderPassType {
+        case .Render:
+            var viewPos = cam.position
+            renderEncoder.setFragmentBytes(&viewPos, length: MemoryLayout<SIMD3<Float>>.stride, index: 2)
+            
+            var lights = SceneLighting().lights
+            
+            renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: 3)
+            
+            for model in models {
+                var transformation = cam.transformation(model: model.modelMatrix)
+                if model.type == .Skybox {
+                    transformation.view.columns.3 = [0, 0, 0, 1]
+                }
+                renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 11)
+                model.render(renderEncoder: renderEncoder, device: device, cameraPosition: cam.position, lightCount: lights.count, renderPassType: renderPassType)
             }
-            renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 11)
-            model.render(renderEncoder: renderEncoder, device: device, cameraPosition: cam.position, lightCount: lights.count)
+        case .Shadow:
+            for model in models {
+                let sun = SceneLighting().sunlight
+                let view = Math.lookAt(position: sun.position, target: [0, 0, 0], up: [0, 1, 0])
+                let projection = Math.ortho(rect: CGRect(x: -10, y: 10, width: -10, height: 10), near: 1, far: 7.5)
+                var transformation = Transformation(model: model.modelMatrix, view: view, projection: projection, normal: model.modelMatrix.upperLeft)
+                
+                renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 11)
+                model.render(renderEncoder: renderEncoder, device: device, cameraPosition: sun.position, lightCount: 1, renderPassType: .Shadow)
+            }
         }
     }
 }

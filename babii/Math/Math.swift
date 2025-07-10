@@ -6,6 +6,7 @@
 //
 
 import simd
+import CoreGraphics
 
 enum Math {
     static func perspective(fovyRadians: Float, aspect: Float, nearZ: Float, farZ: Float) -> matrix_float4x4 {
@@ -17,6 +18,22 @@ enum Math {
                                       [0, ys, 0, 0],
                                       [0, 0, zs, nearZ * zs],
                                       [0, 0, -1, 0]])
+    }
+    
+    static func ortho(rect: CGRect, near: Float, far: Float) -> matrix_float4x4 {
+        let left = Float(rect.origin.x)
+        let right = Float(rect.origin.x + rect.width)
+        let top = Float(rect.origin.y)
+        let bottom = Float(rect.origin.y - rect.height)
+        let X = SIMD4<Float>(2 / (right - left), 0, 0, 0)
+        let Y = SIMD4<Float>(0, 2 / (top - bottom), 0, 0)
+        let Z = SIMD4<Float>(0, 0, 1 / (far - near), 0)
+        let W = SIMD4<Float>(
+          (left + right) / (left - right),
+          (top + bottom) / (bottom - top),
+          near / (near - far),
+          1)
+        return matrix_float4x4(columns:(X, Y, Z, W))
     }
     
     static func lookAt(position: SIMD3<Float>, target: SIMD3<Float>, up: SIMD3<Float>) -> matrix_float4x4 {

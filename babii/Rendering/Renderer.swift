@@ -9,6 +9,10 @@ import Foundation
 import GameController
 import MetalKit
 
+enum RenderPassType {
+    case Shadow, Render
+}
+
 public typealias ProcessInputClosure = ((TimeInterval, [GCKeyCode: Bool], SIMD2<Float>) -> ())
 
 public class Renderer: NSObject, MTKViewDelegate {
@@ -82,11 +86,12 @@ public class Renderer: NSObject, MTKViewDelegate {
         renderEncoder.label = "Shadow Encoder"
         
         renderEncoder.setDepthStencilState(depthState)
-        
+        scene.render(renderEncoder: renderEncoder, device: device, renderPassType: .Shadow)
+        renderEncoder.endEncoding()
     }
-        
-    public func draw(in view: MTKView) {
-        guard let renderPassDescriptor = view.currentRenderPassDescriptor, let commandBuffer = commandQueue.makeCommandBuffer() else {
+    
+    private func forwardRenderPass(commandBuffer: MTLCommandBuffer, view: MTKView) {
+        guard let renderPassDescriptor = view.currentRenderPassDescriptor else {
             return
         }
         commandBuffer.label = "MyCommand"
@@ -108,9 +113,17 @@ public class Renderer: NSObject, MTKViewDelegate {
             renderEncoder.setTriangleFillMode(.lines)
         }
         
-        scene.render(renderEncoder: renderEncoder, device: device)
+        scene.render(renderEncoder: renderEncoder, device: device, renderPassType: .Render)
         
         renderEncoder.endEncoding()
+    }
+        
+    public func draw(in view: MTKView) {
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else { return }
+        
+        shadowRenderPass(commandBuffer: commandBuffer)
+        forwardRenderPass(commandBuffer: commandBuffer, view: view)
+        
         if let currentDrawable = view.currentDrawable {
             commandBuffer.present(currentDrawable)
         }
