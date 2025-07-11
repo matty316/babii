@@ -16,7 +16,7 @@ struct GameScene {
     var lastMouseDelta = Controls.Point()
 
     init(device: MTLDevice) {
-        let pancakes = Model3d(device: device, assetName: "pancakes_photogrammetry", position: [0, -1, 0], rotationAngle: 0, rotation: [0, 0, 0], scale: 0.05)
+        let pancakes = Model3d(device: device, assetName: "pancakes_photogrammetry", position: [0, 0, 0], rotationAngle: 0, rotation: [0, 0, 0], scale: 0.05)
         models.append(pancakes)
         let ground = Plane(textureName: "wood", device: device)
         models.append(ground)
@@ -61,6 +61,8 @@ struct GameScene {
             renderEncoder.setFragmentBytes(&lights, length: MemoryLayout<Light>.stride * lights.count, index: 3)
             
             for model in models {
+                renderEncoder.setRenderPipelineState(model.pipelineState)
+
                 var transformation = cam.transformation(model: model.modelMatrix)
                 if model.type == .Skybox {
                     transformation.view.columns.3 = [0, 0, 0, 1]
@@ -70,9 +72,10 @@ struct GameScene {
             }
         case .Shadow:
             for model in models {
+                renderEncoder.setRenderPipelineState(model.shadowPipelineState)
                 let sun = SceneLighting().sunlight
                 let view = Math.lookAt(position: sun.position, target: [0, 0, 0], up: [0, 1, 0])
-                let projection = Math.ortho(rect: CGRect(x: -10, y: 10, width: -10, height: 10), near: 1, far: 7.5)
+                let projection = Math.ortho(left: -10, right: 10, bottom: -10, top: 10, near: 1.0, far: 10)
                 var transformation = Transformation(model: model.modelMatrix, view: view, projection: projection, normal: model.modelMatrix.upperLeft)
                 
                 renderEncoder.setVertexBytes(&transformation, length: MemoryLayout<Transformation>.stride, index: 11)
@@ -93,7 +96,7 @@ struct SceneLighting {
 
   let sunlight: Light = {
     var light = Self.buildDefaultLight()
-    light.position = [1.8, 2.2, -2.9]
+    light.position = [-2, 4, -1]
     return light
   }()
 

@@ -131,13 +131,9 @@ struct Model3d: Model {
         lightCount: Int,
         renderPassType: RenderPassType
     ) {
-        switch renderPassType {
-        case .Render:
-            renderEncoder.setRenderPipelineState(pipelineState)
+        if renderPassType == .Render {
             var params = Params(lightCount: UInt32(lightCount), cameraPosition: cameraPosition, tiling: 1)
             renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
-        case .Shadow:
-            renderEncoder.setRenderPipelineState(shadowPipelineState)
         }
         
         for mesh in meshes {

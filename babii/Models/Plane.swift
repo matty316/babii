@@ -15,7 +15,7 @@ struct Plane: Model {
     let normal: MTLTexture?
     let mesh: MTKMesh
     let type: ModelType
-    var position: SIMD3<Float> = [0, -1, 0]
+    var position: SIMD3<Float> = [0, 0, 0]
     var rotation: SIMD3<Float> = [0, 0, Math.radians(from: 270)]
     var scale: Float = 100
     var material: Material
@@ -60,9 +60,7 @@ struct Plane: Model {
         lightCount: Int,
         renderPassType: RenderPassType,
     ) {
-        switch renderPassType {
-        case .Render:
-            renderEncoder.setRenderPipelineState(pipelineState)
+        if renderPassType == .Render {
             renderEncoder.setFragmentTexture(diffuse, index: 0)
             renderEncoder.setFragmentTexture(roughness, index: 1)
             renderEncoder.setFragmentTexture(normal, index: 2)
@@ -72,8 +70,6 @@ struct Plane: Model {
             renderEncoder.setFragmentBytes(&params, length: MemoryLayout<Params>.stride, index: 6)
             var material = self.material
             renderEncoder.setFragmentBytes(&material, length: MemoryLayout<Material>.stride, index: 7)
-        case .Shadow:
-            renderEncoder.setRenderPipelineState(shadowPipelineState)
         }
         
         for (i, buffer) in mesh.vertexBuffers.enumerated() {

@@ -29,12 +29,8 @@ struct Skybox: Model {
         lightCount: Int,
         renderPassType: RenderPassType
     ) {
-        switch renderPassType {
-        case .Render:
-            renderEncoder.setRenderPipelineState(pipelineState)
+        if renderPassType == .Render {
             renderEncoder.setFragmentTexture(skyTexture, index: 0)
-        case .Shadow:
-            renderEncoder.setRenderPipelineState(shadowPipelineState)
         }
         renderEncoder.setVertexBuffer(mesh.vertexBuffers[0].buffer, offset: 0, index: 0)
         let submesh = mesh.submeshes[0]
